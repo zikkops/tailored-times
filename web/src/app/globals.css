@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+/* Colours from the live site's Elementor globals (21 Sep 2026). */
+:root {
+  --ink: #0d0c1d; /* dark bands, text */
+  --ink-2: #17152f; /* headings, dark buttons */
+  --paper: #f0ebeb; /* header, footer, cards, light buttons */
+  --paper-2: #dbd8d8;
+  --line: #c7c2c2;
+  --muted: #7a7a7a;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --font-script: var(--font-blenda), "Brush Script MT", cursive;
+  --font-bauhaus: var(--font-bauhaus-face), "Century Gothic", sans-serif;
+  --font-roboto: var(--font-roboto), Arial, sans-serif;
+  --font-news: var(--font-news-face), Georgia, "Times New Roman", serif;
+}
+
+body {
+  background: #fff;
+  color: var(--ink);
+}
+
+/* Headings in the script face are always bold like on the live site. */
+.font-script {
+  font-weight: 600;
+}
+
+/* Dark full-width band with the Tailored Times pattern (used between home sections). */
+.band {
+  background-color: var(--ink);
+  background-image: url("/brand/pattern.png");
+  background-size: contain;
+  background-position: center;
+}
+
+/* Light button: Roboto 500, 15px, 3px corners (Elementor button on the live site). */
+.btn-light {
+  display: inline-block;
+  background: var(--paper);
+  color: var(--ink-2);
+  font-family: var(--font-roboto);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1;
+  padding: 12px 24px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+.btn-light:hover {
+  background: var(--paper-2);
+}
+
+.btn-dark {
+  display: inline-block;
+  background: var(--ink-2);
+  color: #fff;
+  font-family: var(--font-roboto);
+  font-size: 14px;
+  padding: 10px 22px;
+  border-radius: 5px;
+  transition: opacity 0.2s;
+}
+.btn-dark:hover {
+  opacity: 0.9;
+}
+.btn-dark:disabled {
+  opacity: 0.6;
+}
