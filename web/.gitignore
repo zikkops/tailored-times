@@ -42,5 +42,6 @@ yarn-error.log*
 next-env.d.ts
 
 # Commercial fonts (Blenda Script, Bauhaus): licensed files, never publish them
-# in a public repo. Copy them into src/fonts/ locally; see README.md.
-/src/fonts/*.ttf
+# in a public repo. Copy them into public/fonts/ locally; see README.md.
+# Without them the site falls back to free lookalikes (Lobster, Comfortaa).
+/public/fonts/*.ttf

@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/* Licensed fonts, loaded from public/fonts/ when the files are there (they are
+   gitignored). If they are missing, the stacks below fall back to the free
+   lookalikes from layout.tsx (Lobster, Comfortaa). */
+@font-face {
+  font-family: "Blenda Script";
+  src: url("/fonts/Blenda-Script.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bauhaus";
+  src: url("/fonts/BauhausRegular.ttf") format("truetype");
+  font-display: swap;
+}
+
 /* Colours from the live site's Elementor globals (21 Sep 2026). */
 :root {
   --ink: #0d0c1d; /* dark bands, text */
@@ -17,8 +31,8 @@
   --color-paper-2: var(--paper-2);
   --color-line: var(--line);
   --color-muted: var(--muted);
-  --font-script: var(--font-blenda), "Brush Script MT", cursive;
-  --font-bauhaus: var(--font-bauhaus-face), "Century Gothic", sans-serif;
+  --font-script: "Blenda Script", var(--font-blenda), "Brush Script MT", cursive;
+  --font-bauhaus: "Bauhaus", var(--font-bauhaus-face), "Century Gothic", sans-serif;
   --font-roboto: var(--font-roboto), Arial, sans-serif;
   --font-news: var(--font-news-face), Georgia, "Times New Roman", serif;
 }

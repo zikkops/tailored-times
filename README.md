@@ -19,5 +19,6 @@ Database setup: run `web/supabase/setup.sql` once in the Supabase SQL editor.
 ## Fonts (not in this repo)
 
 The site uses two commercial fonts that are licensed, not free to share, so they are not committed:
-`web/src/fonts/Blenda-Script.ttf` and `web/src/fonts/BauhausRegular.ttf`. Copy them into that folder
-from the owner's licensed copies before running or building the site.
+`web/public/fonts/Blenda-Script.ttf` and `web/public/fonts/BauhausRegular.ttf`. Copy them into that folder
+from the owner's licensed copies. Without them the site still builds and uses free lookalikes
+(Lobster for Blenda Script, Comfortaa for Bauhaus).
