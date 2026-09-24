@@ -4,7 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createOrder } from "@/app/actions";
 import type { FormField } from "@/lib/data";
-import { calculatePrice, FORMATS, SIZES, type Format, type PricingConfig, type Size } from "@/lib/pricing";
+import {
+  calculatePrice,
+  DESIGNER_REQUIRED_FROM_PAGES,
+  FORMATS,
+  SIZES,
+  type Format,
+  type PricingConfig,
+  type Size,
+} from "@/lib/pricing";
 
 // Three-step order form in the site's newspaper style: an off-white "order
 // form" card, a progress line, tappable option buttons instead of drop-downs,
@@ -22,14 +30,35 @@ const HELP = {
     "A hard copy is a physical, printed newspaper. A digital copy is a document that exists electronically. A cover page is a single printed front page, ideal for framing.",
   size: "Tabloid is 33 cm × 24 cm. Broadsheet is 50 cm × 35.7 cm.",
   pages:
-    "Four pages are the standard pages we created for each template. One page is a cover page, best for framing. Eight and above are new pages; our designer will contact you about them.",
+    "Four pages are the standard pages we created for each template. Five and above are new pages, so a designer is needed: they will contact you to go over the details.",
   copies: "How many copies of the same newspaper you want (1 to 500).",
   frames: "A black wooden frame that surrounds the newspaper so you can hang it.",
   designer:
-    "Ask for a designer to create a new template from scratch or add pages beyond the 4 standard ones. Changing the text and photos in our templates does not need a designer.",
+    "A designer creates a new template from scratch or adds pages beyond the 4 standard ones, and is required from 5 pages up. Changing the text and photos in our templates does not need a designer.",
 };
 
 const FORMAT_LABELS: Record<Format, string> = { "Hard copy": "Hard copy", "Digital copy": "Digital", "Cover page": "Cover page" };
+
+// A textarea that grows as you type, and takes line breaks (bug list R14).
+function GrowingTextarea({ className = "", rows = 4, ...props }: React.ComponentProps<"textarea">) {
+  const grow = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
+  return (
+    <textarea
+      {...props}
+      rows={rows}
+      ref={grow}
+      onInput={(e) => {
+        grow(e.currentTarget);
+        props.onInput?.(e);
+      }}
+      className={`resize-none overflow-hidden ${className}`}
+    />
+  );
+}
 const STEPS = ["Your paper", "Your story", "Delivery"] as const;
 
 const input =
@@ -117,17 +146,20 @@ export function OrderForm({ template, pricing }: Props) {
   const [designer, setDesigner] = useState<"No" | "Yes">("No");
 
   const isDigital = format === "Digital copy";
-  const isCover = format === "Cover page";
   const setCopiesSafe = (n: number) => setCopies(Math.max(1, Math.min(500, Math.floor(n) || 1)));
+
+  // A designer is required from 5 pages up (bug list R15): the choice is
+  // forced to Yes and locked, so nobody can order 8+ pages without one.
+  const designerRequired = !isDigital && pages >= DESIGNER_REQUIRED_FROM_PAGES;
 
   // What is actually ordered, after the format rules (also what the server gets).
   const order = {
     format,
     size,
-    pages: isCover ? 1 : pages,
+    pages,
     copies: isDigital ? 1 : copies,
     frames: !isDigital && frames === "Yes",
-    designer: designer === "Yes",
+    designer: designerRequired || designer === "Yes",
   };
   const price = calculatePrice(order, pricing);
 
@@ -229,7 +261,7 @@ export function OrderForm({ template, pricing }: Props) {
 
         <div>
           <Label help={HELP.pages}>Pages</Label>
-          <Options label="Pages" value={order.pages} options={pricing.pageOptions} onChange={setPages} disabled={isCover || isDigital} />
+          <Options label="Pages" value={order.pages} options={pricing.pageOptions} onChange={setPages} disabled={isDigital} />
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
@@ -239,7 +271,19 @@ export function OrderForm({ template, pricing }: Props) {
           </div>
           <div>
             <Label help={HELP.designer}>Designer needed</Label>
-            <Options label="Designer needed" value={designer} options={["No", "Yes"] as const} onChange={setDesigner} />
+            <Options
+              label="Designer needed"
+              value={designerRequired ? "Yes" : designer}
+              options={["No", "Yes"] as const}
+              onChange={setDesigner}
+              disabled={designerRequired}
+            />
+            {designerRequired && (
+              <p className="mt-2 font-roboto text-xs text-ink/70">
+                Required from {DESIGNER_REQUIRED_FROM_PAGES} pages up: these are new pages, so our designer will contact
+                you.
+              </p>
+            )}
           </div>
         </div>
 
@@ -271,7 +315,7 @@ export function OrderForm({ template, pricing }: Props) {
             </Label>
             {f.help && <p className="-mt-1 mb-2 font-roboto text-xs text-muted">{f.help}</p>}
             {f.type === "textarea" ? (
-              <textarea id={`f_${f.key}`} name={`answer_${f.key}`} required={f.required} rows={6} className={input} />
+              <GrowingTextarea id={`f_${f.key}`} name={`answer_${f.key}`} required={f.required} rows={5} className={input} />
             ) : f.type === "file" ? (
               <input
                 id={`f_${f.key}`}
@@ -314,11 +358,11 @@ export function OrderForm({ template, pricing }: Props) {
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="delivery_address">Delivery address *</Label>
-            <textarea id="delivery_address" name="delivery_address" required rows={3} autoComplete="street-address" className={input} />
+            <GrowingTextarea id="delivery_address" name="delivery_address" required rows={2} autoComplete="street-address" className={input} />
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="notes">Anything else we should know?</Label>
-            <textarea id="notes" name="notes" rows={3} className={input} />
+            <GrowingTextarea id="notes" name="notes" rows={2} className={input} />
           </div>
         </div>
 
@@ -328,7 +372,7 @@ export function OrderForm({ template, pricing }: Props) {
           <p className="mt-2 text-ink">
             {template.name} · {FORMAT_LABELS[format]}
             {!isDigital && ` · ${size}`}
-            {!isCover && !isDigital && ` · ${pages} pages`}
+            {!isDigital && ` · ${pages} pages`}
             {!isDigital && ` · ${copies} ${copies === 1 ? "copy" : "copies"}`}
             {order.frames && " · framed"}
             {order.designer && " · designer"}

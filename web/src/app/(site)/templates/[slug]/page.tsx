@@ -18,9 +18,15 @@ export default async function TemplatePage(props: PageProps<"/templates/[slug]">
   if (!template) notFound();
 
   return (
-    <div className="mx-auto grid max-w-[1140px] items-start gap-10 px-4 py-6 md:grid-cols-[400px_1fr]">
-      <div className="md:sticky md:top-6">
-        <PreviewSlider images={template.previewImages} name={template.name} />
+    <div className="mx-auto grid max-w-[1140px] gap-10 px-4 py-6 md:grid-cols-[400px_1fr]">
+      {/* The previews stay centred in the window (below the sticky header) for
+          as long as the form beside them is still scrolling past. */}
+      <div>
+        <div className="md:sticky md:top-28 md:flex md:h-[calc(100vh-8rem)] md:items-center">
+          <div className="w-full">
+            <PreviewSlider images={template.previewImages} name={template.name} />
+          </div>
+        </div>
       </div>
       <div className="pt-4">
         <h1 className="font-script text-3xl text-ink sm:text-[34px]">{template.name} Template</h1>

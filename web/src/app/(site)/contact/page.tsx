@@ -48,12 +48,12 @@ export default function ContactPage() {
         {/* Other ways to reach us */}
         <aside className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
           <Classified title="By phone">
-            <a href="tel:+96181587957" className="font-news text-2xl font-bold hover:underline">
+            <a href="tel:+96181587957" className="inline-block py-1 font-news text-2xl font-bold hover:underline">
               +961 81 587 957
             </a>
           </Classified>
           <Classified title="By email">
-            <a href="mailto:contact@tailored-times.com" className="break-all hover:underline">
+            <a href="mailto:contact@tailored-times.com" className="inline-block break-all py-2 hover:underline">
               contact@tailored-times.com
             </a>
           </Classified>
@@ -68,7 +68,7 @@ export default function ContactPage() {
             </p>
             <Link
               href="/templates"
-              className="mt-3 inline-block border-b border-ink pb-0.5 font-roboto text-xs font-medium uppercase tracking-[0.2em] text-ink"
+              className="mt-2 inline-block py-2 font-roboto text-xs font-medium uppercase tracking-[0.2em] text-ink underline decoration-ink underline-offset-4"
             >
               Or pick a ready-made template →
             </Link>

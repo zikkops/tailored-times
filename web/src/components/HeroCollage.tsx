@@ -12,7 +12,7 @@ import { useEffect, useRef } from "react";
 
 const COLUMNS = 7;
 const ROWS = 4;
-const DEPTHS = [28, 46, 34, 54, 30, 50, 38]; // px of drift per column at the edge of the hero
+const DEPTHS = [10, 17, 12, 20, 11, 18, 14]; // px of drift per column at the edge of the hero
 
 const SCROLL_SHIFT = 0.2; // the wall slides down at most 20% of the hero's height
 const EASE = 0.08; // share of the remaining distance covered per frame (lower = smoother, slower)

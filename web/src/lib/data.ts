@@ -32,6 +32,12 @@ export const DEFAULT_FORM_SCHEMA: FormField[] = [
   { key: "headline", label: "Main headline", type: "text", help: "The big front-page headline. Leave empty and our team will write one." },
   { key: "stories", label: "Stories, memories and facts", type: "textarea", required: true, help: "Everything you want in the paper: anecdotes, milestones, jokes, quotes." },
   { key: "photos", label: "Photos", type: "file", help: "Up to 10 photos (JPG or PNG, 5 MB each)." },
+  {
+    key: "extra_notes",
+    label: "Anything else we should pay attention to?",
+    type: "textarea",
+    help: "Notes, comments or special requests about this paper.",
+  },
 ];
 
 const seedTemplates = (): Template[] =>

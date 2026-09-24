@@ -106,6 +106,9 @@ export function StepsFlow({ steps, children }: { steps: number; children: React.
         return sampleLen[lo] + t * (sampleLen[hi] - sampleLen[lo]);
       };
 
+      // Photos slide in from 70px on desktop, a shorter 32px on phones.
+      const slide = window.matchMedia("(min-width: 768px)").matches ? 70 : 32;
+
       // ---- Reveal for each step, scrubbed by the scroll -------------------
       // Each step's timeline runs 0 → 1 while the line's tip travels REVEAL px
       // past the step's dot, so the photo and text move with the scroll wheel
@@ -116,7 +119,7 @@ export function StepsFlow({ steps, children }: { steps: number; children: React.
           .fromTo(dots[i], { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(3)" })
           .fromTo(
             step.querySelectorAll<HTMLElement>("[data-step-media]"),
-            { x: (_, el: HTMLElement) => (el.dataset.from === "right" ? 70 : -70), opacity: 0 },
+            { x: (_, el: HTMLElement) => (el.dataset.from === "right" ? 1 : -1) * slide, opacity: 0 },
             { x: 0, opacity: 1, duration: 0.6, stagger: 0.1 },
             0.1,
           )
@@ -199,7 +202,9 @@ export function StepsFlow({ steps, children }: { steps: number; children: React.
   );
 
   return (
-    <div ref={root} className="relative">
+    // overflow-x-clip: photos waiting off to the side (before they slide in)
+    // must not widen the page on phones; clip, unlike hidden, keeps sticky working.
+    <div ref={root} className="relative overflow-x-clip">
       <svg ref={svg} aria-hidden className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
         {/* Drawn by shrinking its dash offset from the full length (hidden) to 0 (drawn) */}
         <path ref={path} fill="none" stroke="var(--ink)" strokeWidth="4" strokeLinecap="round" />

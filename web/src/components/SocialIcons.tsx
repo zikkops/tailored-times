@@ -18,9 +18,9 @@ const SOCIALS = [
 
 export function SocialIcons({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-5 ${className}`}>
+    <div className={`-ml-2.5 flex items-center gap-1 ${className}`}>
       {SOCIALS.map((s) => (
-        <a key={s.label} href={s.href} aria-label={s.label} target="_blank" rel="noreferrer" className="text-ink hover:opacity-70">
+        <a key={s.label} href={s.href} aria-label={s.label} target="_blank" rel="noreferrer" className="flex h-10 w-10 items-center justify-center text-ink hover:opacity-70">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden>
             <path d={s.path} />
           </svg>

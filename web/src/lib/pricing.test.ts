@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calculatePrice, FORMATS, SIZES, type Format, type Size } from "./pricing";
+import { calculatePrice, SIZES, type Format, type Size } from "./pricing";
+
+// Every format the calculation supports, including "Cover page", which is no
+// longer offered on the site but must keep pricing old orders correctly.
+const ALL_FORMATS = ["Hard copy", "Digital copy", "Cover page"] as const;
 
 // The calculator exactly as it runs on tailored-times.com (21 Sep 2026),
 // kept here as the reference the port must match.
@@ -38,7 +42,7 @@ describe("calculatePrice", () => {
   it("matches the live site for every format, size, page count, frame and designer option", () => {
     const copiesList = [1, 2, 3, 4, 5, 6, 10, 12, 13, 20, 25, 26, 50, 51, 100, 101, 250, 251, 500];
     let checked = 0;
-    for (const format of FORMATS)
+    for (const format of ALL_FORMATS)
       for (const size of SIZES)
         for (const pages of [1, 4, 8, 12, 16, 20, 24])
           for (const copies of copiesList)

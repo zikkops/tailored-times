@@ -72,15 +72,15 @@ export const TEMPLATES: TemplateSeed[] = [
   {
     slug: "christian-wedding",
     legacySlug: "christan-wedding-template",
-    name: "Wedding 1 (Christian)",
+    name: "Wedding 1",
     category: "Wedding",
-    blurb: "A celebration of love, faith, and forever. This Christian wedding brings together two souls in holy matrimony, surrounded by blessings, vows, and cherished traditions—captured in timeless memories.",
+    blurb: "A celebration of love, faith, and forever. This wedding brings together two souls in holy matrimony, surrounded by blessings, vows, and cherished traditions—captured in timeless memories.",
     previewImages: ["/templates/christian-wedding/1.jpg", "/templates/christian-wedding/2.jpg", "/templates/christian-wedding/3.jpg", "/templates/christian-wedding/4.jpg"],
   },
   {
     slug: "muslim-wedding",
     legacySlug: "muslim-wedding-template",
-    name: "Wedding 2 (Muslim)",
+    name: "Wedding 2",
     category: "Wedding",
     blurb: "A heartfelt union under the light of tradition and prayer. This Nikah ceremony marks the beginning of a shared journey built on love, faith, and divine blessings—honoring sacred customs and celebrating new beginnings.",
     previewImages: ["/templates/muslim-wedding/1.jpg", "/templates/muslim-wedding/2.jpg", "/templates/muslim-wedding/3.jpg", "/templates/muslim-wedding/4.jpg"],
@@ -88,7 +88,7 @@ export const TEMPLATES: TemplateSeed[] = [
   {
     slug: "basketball-tribute",
     legacySlug: "basketball-tribute",
-    name: "Basketball Tribute",
+    name: "Sports Tribute",
     category: "Sports tribute",
     blurb: "A tribute to the court kings and queens who gave it their all—every bounce, every shot, every heartbeat. This is where hustle meets passion, where teamwork makes history, and where love for the game lives on.",
     previewImages: ["/templates/basketball-tribute/1.jpg", "/templates/basketball-tribute/2.jpg", "/templates/basketball-tribute/3.jpg", "/templates/basketball-tribute/4.jpg"],

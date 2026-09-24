@@ -20,8 +20,8 @@ export function TemplateGallery({ templates }: { templates: GalleryTemplate[] })
           <li key={t.slug}>
             <Link href={`/templates/${t.slug}`} className="group block">
               {/* The cover, mounted like a printed page */}
-              <div className="bg-white p-2 shadow-[0_2px_10px_rgba(13,12,29,0.12)] transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-[0_14px_30px_rgba(13,12,29,0.22)] sm:p-3">
-                <div className="relative aspect-[733/1024] overflow-hidden bg-paper">
+              <div className="border border-ink/70 bg-white p-2 shadow-[0_2px_10px_rgba(13,12,29,0.12)] transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-[0_14px_30px_rgba(13,12,29,0.22)] sm:p-3">
+                <div className="relative aspect-[733/1024] overflow-hidden border border-ink/25 bg-paper">
                   {t.cover ? (
                     <Image
                       src={t.cover}

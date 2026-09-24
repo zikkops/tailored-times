@@ -22,11 +22,12 @@ const REVIEWS = [
     title: "Serial Gifter",
   },
   {
-    headline: "Our guests kept a copy",
+    // Real review, supplied by the owner (bug list R9).
+    headline: "She was OBSESSED",
     quote:
-      "We handed out the wedding edition at the reception instead of a menu card. By the end of the night every table had a copy tucked away to take home.",
-    name: "Sample review",
-    title: "Wedding edition",
+      "I surprised my best friend with a custom newspaper for her birthday and she was OBSESSED! 🥹 It looked so personal and thoughtful, and honestly made the whole gift feel ten times more special. Such a cute idea!",
+    name: "Maya",
+    title: "Birthday Bestie",
   },
   {
     headline: "The office read it twice",
@@ -173,7 +174,7 @@ export function Testimonials() {
       </div>
 
       {/* One dot per position the carousel can stop at */}
-      <div className="mt-2 flex justify-center gap-2.5">
+      <div className="mt-1 flex justify-center">
         {Array.from({ length: pages }, (_, i) => (
           <button
             key={i}
@@ -181,8 +182,13 @@ export function Testimonials() {
             onClick={() => go(i)}
             aria-label={`Show reviews from ${i + 1}`}
             aria-current={i === current}
-            className={`h-2.5 rounded-full transition-all ${i === current ? "w-7 bg-paper" : "w-2.5 bg-paper/40 hover:bg-paper/70"}`}
-          />
+            className="group flex h-10 min-w-10 items-center justify-center"
+          >
+            <span
+              aria-hidden
+              className={`block h-2.5 rounded-full transition-all ${i === current ? "w-7 bg-paper" : "w-2.5 bg-paper/40 group-hover:bg-paper/70"}`}
+            />
+          </button>
         ))}
       </div>
     </section>

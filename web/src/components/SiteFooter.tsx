@@ -12,7 +12,7 @@ const SECTIONS = [
 ];
 
 const heading = "font-roboto text-[11px] font-semibold uppercase tracking-[0.25em] text-ink/70";
-const link = "font-bauhaus text-[15px] text-ink transition-opacity hover:opacity-60";
+const link = "inline-block py-2 font-bauhaus text-[15px] text-ink transition-opacity hover:opacity-60";
 
 export function SiteFooter() {
   return (
@@ -29,7 +29,9 @@ export function SiteFooter() {
 
         {/* Columns */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 py-10 lg:grid-cols-4">
-          <div className="col-span-2 lg:col-span-1">
+          {/* Phones: About full width, then Sections + Follow side by side, then
+              Contact full width (the email address needs the room). */}
+          <div className="order-1 col-span-2 lg:order-none lg:col-span-1">
             <h2 className={heading}>About</h2>
             <p className="mt-4 font-bauhaus text-[15px] leading-relaxed text-ink/85">
               Custom-made newspapers for birthdays, weddings, retirements and every occasion that deserves the
@@ -37,9 +39,9 @@ export function SiteFooter() {
             </p>
           </div>
 
-          <div>
+          <div className="order-2 lg:order-none">
             <h2 className={heading}>Sections</h2>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-2">
               {SECTIONS.map((s) => (
                 <li key={s.href}>
                   <Link href={s.href} className={link}>
@@ -50,11 +52,11 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          <div>
+          <div className="order-4 col-span-2 sm:col-span-1 lg:order-none">
             <h2 className={heading}>Contact</h2>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-2">
               <li>
-                <a href="mailto:contact@tailored-times.com" className={`${link} break-all`}>
+                <a href="mailto:contact@tailored-times.com" className={link}>
                   contact@tailored-times.com
                 </a>
               </li>
@@ -63,13 +65,13 @@ export function SiteFooter() {
                   +961 81 587 957
                 </a>
               </li>
-              <li className="font-bauhaus text-[15px] text-ink/70">Lebanon · Free delivery</li>
+              <li className="py-2 font-bauhaus text-[15px] text-ink/70">Lebanon · Free delivery</li>
             </ul>
           </div>
 
-          <div className="col-span-2 sm:col-span-1">
+          <div className="order-3 lg:order-none">
             <h2 className={heading}>Follow</h2>
-            <SocialIcons className="mt-4" />
+            <SocialIcons className="mt-2" />
             <Link href="/templates" className="btn-dark mt-6 font-medium">
               Start your paper
             </Link>

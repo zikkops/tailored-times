@@ -3,10 +3,13 @@
 // in PricingConfig so admins can change them from the `pricing` table.
 // Used by both the calculator UI and the server, which always recalculates.
 
-export const FORMATS = ["Hard copy", "Digital copy", "Cover page"] as const;
+// Formats customers can order. "Cover page" was dropped from the site (bug
+// list R5) but stays in the Format type and the calculation, so old orders
+// and any cover-page prices still work.
+export const FORMATS = ["Hard copy", "Digital copy"] as const;
 export const SIZES = ["Tabloid", "Broadsheet"] as const;
 
-export type Format = (typeof FORMATS)[number];
+export type Format = (typeof FORMATS)[number] | "Cover page";
 export type Size = (typeof SIZES)[number];
 
 export type PriceTier = { maxQty: number | null; unit: number }; // null = no upper bound
@@ -70,6 +73,8 @@ export const DEFAULT_PRICING: PricingConfig = {
   largeOrderStepEvery: 10,
   largeOrderStepAdd: 2,
 };
+
+export const DESIGNER_REQUIRED_FROM_PAGES = 8;
 
 export type PriceInput = {
   format: Format;

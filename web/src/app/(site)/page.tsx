@@ -4,6 +4,7 @@ import { HeroCollage } from "@/components/HeroCollage";
 import { Masthead } from "@/components/Masthead";
 import { StepsFlow } from "@/components/StepsFlow";
 import { Testimonials } from "@/components/Testimonials";
+import { getTemplates } from "@/lib/data";
 
 // Home page: same layout, copy and images as the live site (21 Sep 2026).
 // Audit fixes kept: no "Art exhibition" (no such template), page limit matches
@@ -14,11 +15,11 @@ const COLLAGE = [
   "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg", "12.jpg",
 ].map((f) => `/home/collage/${f}`);
 
-const CATEGORIES = [
-  ["Anniversary", "Baby showers", "Birthdays", "Wedding", "Corporate"],
-  ["Events", "Fashion", "Menu", "Mother's day", "Father's day"],
-  ["Promotions", "Retirements", "Sports tribute", "Summer camp souvenir"],
-];
+// Step 1 lists every template by name, in three columns (bug list R4).
+function columns<T>(items: T[], count: number): T[][] {
+  const per = Math.ceil(items.length / count);
+  return Array.from({ length: count }, (_, i) => items.slice(i * per, (i + 1) * per));
+}
 
 // A section laid out like a newspaper story: small-caps kicker, full-width
 // script headline over a double rule, then the text with a drop cap. Longer
@@ -92,7 +93,10 @@ function StepImage({ src, alt, from, className = "" }: { src: string; alt: strin
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const templates = await getTemplates();
+  const nameColumns = columns(templates.map((t) => t.name), 3);
+
   return (
     <>
       {/* Hero: tilted wall of newspaper covers (drifts with the cursor) behind a dark card */}
@@ -112,7 +116,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Masthead section="Front Page">Because every story deserves a front page.</Masthead>
+      <Masthead section="Front Page">
+        Because every story
+        <br />
+        deserves a front page.
+      </Masthead>
 
       <Article kicker="The Feature" title="What's in the Paper? You.">
         We turn your moments into newsworthy keepsakes. Whether it&apos;s a birthday roast, a wedding highlight, a
@@ -139,10 +147,10 @@ export default function HomePage() {
             <div data-step-text>
               <StepHeading n={1} title="Choose your template" />
               <div className="mt-3 grid grid-cols-2 gap-x-5 font-bauhaus text-base lg:grid-cols-3">
-                {CATEGORIES.map((col, i) => (
+                {nameColumns.map((col, i) => (
                   <ul key={i}>
-                    {col.map((c) => (
-                      <li key={c}>– {c}</li>
+                    {col.map((name) => (
+                      <li key={name}>– {name}</li>
                     ))}
                   </ul>
                 ))}
@@ -157,9 +165,8 @@ export default function HomePage() {
           <Step>
             <div data-step-text>
               <StepHeading n={2} title="Choose Format" />
-              <div className="mt-3 grid gap-5 sm:grid-cols-3">
+              <div className="mt-3 grid gap-5 sm:grid-cols-2">
                 <Option title="Digital Copy">A digital copy is a document that exists electronically</Option>
-                <Option title="Cover page only">The cover page is the first, printed page that visually represents your content.</Option>
                 <Option title="Hard Copy">A hard copy refers to a physical, printed version of the template into a newspaper</Option>
               </div>
             </div>
@@ -235,7 +242,7 @@ export default function HomePage() {
         </div>
       </StepsFlow>
 
-      <Masthead section="Section C" subtitle="Custom designs, made from scratch">What if?</Masthead>
+      <Masthead section="Section C" subtitle="Custom designs, made from scratch">Customize your Experience!</Masthead>
 
       <Article kicker="Custom Work" title="If you're looking for a customised job, we are here for you">
         In addition to our existing templates, we also offer fully customized templates built from scratch. We&apos;ll

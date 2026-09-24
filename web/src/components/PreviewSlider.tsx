@@ -23,20 +23,22 @@ export function PreviewSlider({ images, name }: { images: string[]; name: string
       </a>
       {images.length > 1 && (
         <>
-          <button onClick={() => go(-1)} aria-label="Previous page" className="absolute left-0 top-1/2 -translate-y-1/2 px-1 text-3xl text-ink">
+          <button onClick={() => go(-1)} aria-label="Previous page" className="absolute -left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-3xl text-ink">
             ‹
           </button>
-          <button onClick={() => go(1)} aria-label="Next page" className="absolute right-0 top-1/2 -translate-y-1/2 px-1 text-3xl text-ink">
+          <button onClick={() => go(1)} aria-label="Next page" className="absolute -right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-3xl text-ink">
             ›
           </button>
-          <div className="mt-3 flex justify-center gap-2">
+          <div className="mt-1 flex justify-center">
             {images.map((_, n) => (
               <button
                 key={n}
                 onClick={() => setI(n)}
                 aria-label={`Page ${n + 1}`}
-                className={`h-2 w-2 rounded-full ${n === i ? "bg-ink" : "bg-line"}`}
-              />
+                className="flex h-10 w-8 items-center justify-center"
+              >
+                <span aria-hidden className={`block h-2 w-2 rounded-full ${n === i ? "bg-ink" : "bg-line"}`} />
+              </button>
             ))}
           </div>
         </>
