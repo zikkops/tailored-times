@@ -18,7 +18,7 @@ export default async function TemplatePage(props: PageProps<"/templates/[slug]">
   if (!template) notFound();
 
   return (
-    <div className="mx-auto grid max-w-[1140px] gap-10 px-4 py-6 md:grid-cols-[400px_1fr]">
+    <div className="mx-auto grid max-w-[1400px] gap-10 px-4 py-6 md:grid-cols-[minmax(0,460px)_1fr] lg:gap-14 xl:grid-cols-[minmax(0,560px)_1fr]">
       {/* The previews stay centred in the window (below the sticky header) for
           as long as the form beside them is still scrolling past. */}
       <div>

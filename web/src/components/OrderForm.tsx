@@ -311,15 +311,20 @@ export function OrderForm({ template, pricing }: Props) {
           The numbers match the numbered preview of this template. Fill in what you can; leave anything blank and our
           team will ask you about it.
         </p>
+        {/* Two columns on wider screens; long boxes and multi-photo slots take the full width. */}
+        <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
         {template.formSchema.map((f) => (
-          <div key={f.key} className="border-t border-ink/10 pt-4 first:border-0 first:pt-0">
+          <div
+            key={f.key}
+            className={`border-t border-ink/10 pt-4 ${f.type === "textarea" || f.multiple ? "sm:col-span-2" : ""}`}
+          >
             <Label htmlFor={`f_${f.key}`}>
               {f.label}
               {f.required && " *"}
             </Label>
             {f.help && <p className="-mt-1 mb-2 font-roboto text-xs text-muted">{f.help}</p>}
             {f.type === "textarea" ? (
-              <GrowingTextarea id={`f_${f.key}`} name={`answer_${f.key}`} required={f.required} rows={3} className={input} />
+              <GrowingTextarea id={`f_${f.key}`} name={`answer_${f.key}`} required={f.required} rows={2} className={input} />
             ) : f.type === "file" ? (
               <input
                 id={`f_${f.key}`}
@@ -334,6 +339,7 @@ export function OrderForm({ template, pricing }: Props) {
             )}
           </div>
         ))}
+        </div>
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => setStep(0)} className="btn-light">
             ← Back
