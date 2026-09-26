@@ -307,21 +307,25 @@ export function OrderForm({ template, pricing }: Props) {
       {/* Step 2: the customer's content */}
       <fieldset className={step === 1 ? "space-y-5" : "hidden"}>
         <legend className="mb-2 font-news text-2xl font-bold text-ink">Tell us your story</legend>
+        <p className="-mt-2 font-roboto text-sm text-muted">
+          The numbers match the numbered preview of this template. Fill in what you can; leave anything blank and our
+          team will ask you about it.
+        </p>
         {template.formSchema.map((f) => (
-          <div key={f.key}>
+          <div key={f.key} className="border-t border-ink/10 pt-4 first:border-0 first:pt-0">
             <Label htmlFor={`f_${f.key}`}>
               {f.label}
               {f.required && " *"}
             </Label>
             {f.help && <p className="-mt-1 mb-2 font-roboto text-xs text-muted">{f.help}</p>}
             {f.type === "textarea" ? (
-              <GrowingTextarea id={`f_${f.key}`} name={`answer_${f.key}`} required={f.required} rows={5} className={input} />
+              <GrowingTextarea id={`f_${f.key}`} name={`answer_${f.key}`} required={f.required} rows={3} className={input} />
             ) : f.type === "file" ? (
               <input
                 id={`f_${f.key}`}
-                name="photos"
+                name={`file_${f.key}`}
                 type="file"
-                multiple
+                multiple={f.multiple}
                 accept="image/jpeg,image/png,image/webp,image/heic"
                 className="block w-full font-roboto text-sm text-ink file:mr-3 file:rounded-sm file:border-0 file:bg-ink-2 file:px-4 file:py-2 file:text-sm file:text-white"
               />

@@ -45,3 +45,7 @@ next-env.d.ts
 # in a public repo. Copy them into public/fonts/ locally; see README.md.
 # Without them the site falls back to free lookalikes (Lobster, Comfortaa).
 /public/fonts/*.ttf
+
+# The owner's working spreadsheets (internal notes; the repo is public).
+# src/data/template-forms.ts is generated from this and IS committed.
+/data/*.xlsx

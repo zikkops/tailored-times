@@ -144,6 +144,31 @@ Owner's separate asks the same day: gentler hero drift (covers never reach the
 headline card), line break after "story" in the front-page banner, visible
 borders on every gallery cover, previews stay centred beside the order form.
 
+### Step 2 built from the owner's workbook (26 Sep)
+
+`Templates Numbering - Website.xlsx` (one sheet per template, 15 sheets +
+Annex) is now the source for step 2 of the order. All 15 sheets match templates
+we already have, so **no template was missing** and no placeholder was needed.
+
+- `web/data/templates-numbering.xlsx` is the copy in the repo.
+- `npm run gen:forms` (`scripts/generate-template-forms.ts`) turns it into
+  `src/data/template-forms.ts`: 708 fields across the 15 templates, each
+  labelled with the number printed on the paper ("6. Photo", "20. Icon (Text)").
+  Rules: "X + Y" becomes two fields (Photo + Color → an upload and a colour
+  box), Photo → upload, Date → date box, Text-ish → growing box, everything
+  else a single-line box; the Notes column becomes the help text, and notes
+  written to us ("…plz", "27 on the website is 27/") are dropped. Where a note
+  asks for a photo option, the upload is added instead (bug list R33, Menu logo).
+- Every photo slot is its own upload, so photos arrive tagged with the number
+  they belong to; the admin order page lists them by that label.
+- `seed.sql`/`setup.sql` carry each template's `form_schema`, so a fresh
+  database has them; the database copy wins over the generated file, which lets
+  the admin edit fields later.
+- Still open: the forms are long (27–70 fields, 5,500–8,500px). Worth splitting
+  into per-page sections once the owner says which fields sit on which page.
+- Rows 16–88 of the bug list (field-type corrections) should now be re-checked
+  against these generated forms: the workbook already reflects most of them.
+
 ### Blocked, needs something from the owner
 
 - **R6, R7** Replace the step 3 and step 4 images: the new images were not supplied.

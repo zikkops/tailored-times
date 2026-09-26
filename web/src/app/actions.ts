@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ActionResult = { ok: true; reference?: string } | { ok: false; error: string };
 
-const MAX_PHOTOS = 10;
+const MAX_PHOTOS = 60; // templates can have dozens of numbered picture slots
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic"];
 
@@ -111,11 +111,18 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
     answers.push({ field_key: field.key, label: field.label, value });
   }
 
-  const photos = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
-  if (photos.length > MAX_PHOTOS) return { ok: false, error: `Please upload at most ${MAX_PHOTOS} photos.` };
-  for (const p of photos) {
-    if (p.size > MAX_PHOTO_BYTES) return { ok: false, error: `"${p.name}" is larger than 5 MB.` };
-    if (!PHOTO_TYPES.includes(p.type)) return { ok: false, error: `"${p.name}" isn't a JPG, PNG, WEBP or HEIC photo.` };
+  // Photos, kept with the numbered field they belong to ("6. Photo"), so the
+  // team can see which picture goes where on the paper.
+  const photos: { field: string; label: string; file: File }[] = [];
+  for (const field of template.formSchema.filter((f) => f.type === "file")) {
+    const files = formData.getAll(`file_${field.key}`).filter((f): f is File => f instanceof File && f.size > 0);
+    if (!files.length && field.required) return { ok: false, error: `Please add a photo for "${field.label}".` };
+    for (const file of files) photos.push({ field: field.key, label: field.label, file });
+  }
+  if (photos.length > MAX_PHOTOS) return { ok: false, error: `Please upload at most ${MAX_PHOTOS} photos in total.` };
+  for (const { file } of photos) {
+    if (file.size > MAX_PHOTO_BYTES) return { ok: false, error: `"${file.name}" is larger than 5 MB.` };
+    if (!PHOTO_TYPES.includes(file.type)) return { ok: false, error: `"${file.name}" isn't a JPG, PNG, WEBP or HEIC photo.` };
   }
 
   const db = createAdminClient();
@@ -142,15 +149,17 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
   if (answers.length) await db.from("order_answers").insert(answers.map((a) => ({ ...a, order_id: order.id })));
 
   let savedPhotos = 0;
-  for (const [i, photo] of photos.entries()) {
-    const ext = photo.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-    const path = `${order.id}/${i + 1}.${ext}`;
-    const { error: upErr } = await db.storage.from("order-uploads").upload(path, photo, { contentType: photo.type });
+  for (const [i, { field, label, file } ] of photos.entries()) {
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${order.id}/${i + 1}-${field}.${ext}`;
+    const { error: upErr } = await db.storage.from("order-uploads").upload(path, file, { contentType: file.type });
     if (upErr) {
       console.error("photo upload failed", upErr);
       continue;
     }
-    await db.from("order_files").insert({ order_id: order.id, field_key: "photos", storage_path: path, original_name: photo.name });
+    await db
+      .from("order_files")
+      .insert({ order_id: order.id, field_key: label, storage_path: path, original_name: file.name });
     savedPhotos++;
   }
 

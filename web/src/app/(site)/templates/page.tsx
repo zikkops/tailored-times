@@ -17,9 +17,6 @@ export default async function TemplatesPage() {
         </p>
         <h1 className="mt-2 font-script text-[40px] leading-tight text-ink-2 sm:text-[60px]">Pick your template</h1>
         <div className="mt-3 h-[6px] border-y border-ink/70" aria-hidden />
-        <p className="mt-4 font-bauhaus text-base text-ink/80 sm:text-lg">
-          {templates.length} ready-made front pages. Pick one, and we make it yours.
-        </p>
       </header>
 
       <TemplateGallery
