@@ -8,3 +8,8 @@ export const SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+
+// Demo mode for the admin area: sample orders and messages, no login, nothing
+// saved. For designing the back office before the real one exists. Must be off
+// (unset) anywhere real orders live.
+export const ADMIN_DEMO = process.env.NEXT_PUBLIC_ADMIN_DEMO === "1";

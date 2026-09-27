@@ -216,6 +216,34 @@ we already have, so **no template was missing** and no placeholder was needed.
 - **R91** Back button lags after opening a template: not reproduced yet; revisit on
   the deployed site (local dev rebuilds pages on navigation, which looks like lag).
 
+## Admin back office, demo first (27 Sep 2026)
+
+Also 27 Sep: a 404 page in the site style (`src/app/not-found.tsx`): taped
+clipping, masthead rules, "Issue 404", the headline "This story never made it
+to print", a short story with a drop cap, and links back to the templates, the
+front page and contact.
+
+Owner: build the back office for looks first, no APIs, then connect the real
+one. Back end stays **Supabase** (asked and confirmed 27 Sep), so none of the
+database, login or storage code is thrown away.
+
+- `NEXT_PUBLIC_ADMIN_DEMO=1` in `web/.env.local` turns on demo mode: sample
+  orders and messages from `src/lib/demo.ts`, no login, nothing saved, and a
+  yellow band across the top saying so. Every admin action returns early.
+- `src/lib/admin-data.ts` is the single source the admin pages read from:
+  demo data when the flag is on, Supabase otherwise. The pages do not know
+  which.
+- Screens redesigned: orders with totals (new / in progress / open value /
+  this month), search and status filter; one order with customer, paper,
+  step-2 answers, photos, status control and history; messages with unhandled
+  first and a reply link; templates and prices.
+- **Turn the flag off** before real orders exist: it skips the login.
+- Next, to connect it for real: run `web/supabase/setup.sql`, put the
+  `sb_secret_…` key in `SUPABASE_SERVICE_ROLE_KEY`, create the first admin
+  user, then remove `NEXT_PUBLIC_ADMIN_DEMO`. Photos already go to the private
+  `order-uploads` bucket; a separate image host is only needed if serving
+  speed becomes an issue.
+
 ## Phase 0: Gather what the public site can't show
 
 - [x] **P0.1 (owner) Answer the open questions.** *Answered 21 Sep 2026:*

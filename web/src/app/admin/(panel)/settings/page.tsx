@@ -1,39 +1,56 @@
 import { setTemplateActive } from "../../actions";
 import { PricingEditor } from "./PricingEditor";
 import { TemplateEditor } from "./TemplateEditor";
+import { listAdminTemplates } from "@/lib/admin-data";
 import { getPricing } from "@/lib/data";
-import { createClient } from "@/lib/supabase/server";
+import { ADMIN_DEMO } from "@/lib/env";
+
+// Templates (name, description, order, hidden or shown) and every number the
+// price calculator uses.
 
 export default async function AdminSettingsPage() {
-  const supabase = await createClient();
-  const [{ data: templates }, pricing] = await Promise.all([
-    supabase.from("templates").select("id, name, slug, category, blurb, sort_order, active").order("sort_order"),
-    getPricing(),
-  ]);
+  const [templates, pricing] = await Promise.all([listAdminTemplates(), getPricing()]);
 
   return (
     <>
-      <h1 className="font-serif text-3xl font-bold">Templates &amp; prices</h1>
+      <h1 className="font-news text-3xl font-bold">Templates &amp; prices</h1>
 
-      <section className="mt-8">
-        <h2 className="font-serif text-xl font-bold">Templates</h2>
-        <p className="mt-1 text-sm text-muted">Click a template to edit its name, category, description and gallery order. Hidden templates disappear from the gallery and can&apos;t be ordered.</p>
-        <ul className="mt-4 divide-y divide-line border border-line">
-          {templates?.map((t) => (
-            <li key={t.id} className="text-sm">
-              <details>
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-2">
-                  <span className={t.active ? "" : "text-muted line-through"}>
-                    {t.name} <span className="text-muted">/{t.slug}</span>
+      <section className="mt-6">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/50">
+            Templates ({templates.length})
+          </h2>
+          <p className="text-xs text-ink/50">Click one to edit its name, description and order.</p>
+        </div>
+
+        <ul className="mt-3 divide-y divide-ink/10 overflow-hidden rounded-md border border-ink/10 bg-white">
+          {templates.map((t) => (
+            <li key={t.id}>
+              <details className="group">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm transition-colors hover:bg-paper/40">
+                  <span className={t.active ? "font-medium" : "text-ink/45 line-through"}>
+                    {t.name} <span className="font-mono text-xs text-ink/40">/{t.slug}</span>
                   </span>
-                  <span className="text-xs text-muted">Edit ▾</span>
+                  <span className="flex items-center gap-3">
+                    {!t.active && (
+                      <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-gray-600">
+                        hidden
+                      </span>
+                    )}
+                    <span className="text-xs text-ink/40 group-open:hidden">Edit ▾</span>
+                    <span className="hidden text-xs text-ink/40 group-open:inline">Close ▴</span>
+                  </span>
                 </summary>
-                <TemplateEditor template={t} />
-                <form action={setTemplateActive} className="px-4 pb-4">
-                  <input type="hidden" name="id" value={t.id} />
-                  <input type="hidden" name="active" value={String(!t.active)} />
-                  <button className="border border-ink px-3 py-1">{t.active ? "Hide from the website" : "Show on the website"}</button>
-                </form>
+                <div className="border-t border-ink/10 bg-paper/30">
+                  <TemplateEditor template={t} />
+                  <form action={setTemplateActive} className="px-4 pb-4">
+                    <input type="hidden" name="id" value={t.id} />
+                    <input type="hidden" name="active" value={String(!t.active)} />
+                    <button className="rounded-sm border border-ink/30 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-ink hover:text-paper">
+                      {t.active ? "Hide from the website" : "Show on the website"}
+                    </button>
+                  </form>
+                </div>
               </details>
             </li>
           ))}
@@ -41,13 +58,20 @@ export default async function AdminSettingsPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="font-serif text-xl font-bold">Prices</h2>
-        <p className="mt-1 text-sm text-muted">
-          Every number the price calculator uses. Changes apply to the website immediately. Unit prices are per printed
-          sheet, chosen by the total sheets (copies × pages); <code>maxQty: null</code> means &ldquo;and above&rdquo;.
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/50">Prices</h2>
+        <p className="mt-1 max-w-[70ch] text-sm text-ink/60">
+          Every number the calculator uses. Changes apply to the website immediately. Unit prices are per printed sheet,
+          picked by the total sheets (copies × pages); <code className="text-xs">maxQty: null</code> means &ldquo;and
+          above&rdquo;.
         </p>
         <PricingEditor initial={JSON.stringify(pricing, null, 2)} />
       </section>
+
+      {ADMIN_DEMO && (
+        <p className="mt-6 text-center text-xs text-ink/50">
+          Demo mode: the sample templates and prices are shown, and nothing you change here is saved.
+        </p>
+      )}
     </>
   );
 }

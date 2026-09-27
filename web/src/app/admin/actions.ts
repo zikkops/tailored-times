@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
+import { ADMIN_DEMO } from "@/lib/env";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import { DEFAULT_PRICING, type PricingConfig } from "@/lib/pricing";
 import { createClient } from "@/lib/supabase/server";
@@ -13,6 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function updateOrderStatus(formData: FormData) {
   const admin = await requireAdmin();
+  if (ADMIN_DEMO) return; // demo mode: nothing is saved
   const orderId = String(formData.get("order_id"));
   const status = String(formData.get("status")) as OrderStatus;
   const note = String(formData.get("note") ?? "").trim().slice(0, 2000);
@@ -40,6 +42,7 @@ export async function updateOrderStatus(formData: FormData) {
 
 export async function setMessageHandled(formData: FormData) {
   await requireAdmin();
+  if (ADMIN_DEMO) return;
   const supabase = await createClient();
   await supabase
     .from("contact_messages")
@@ -50,6 +53,7 @@ export async function setMessageHandled(formData: FormData) {
 
 export async function setTemplateActive(formData: FormData) {
   await requireAdmin();
+  if (ADMIN_DEMO) return;
   const supabase = await createClient();
   await supabase
     .from("templates")
@@ -61,6 +65,7 @@ export async function setTemplateActive(formData: FormData) {
 
 export async function updateTemplate(_prev: string, formData: FormData): Promise<string> {
   await requireAdmin();
+  if (ADMIN_DEMO) return "Demo mode: changes are not saved.";
   const name = String(formData.get("name") ?? "").trim().slice(0, 100);
   const category = String(formData.get("category") ?? "").trim().slice(0, 100);
   const blurb = String(formData.get("blurb") ?? "").trim().slice(0, 1000);
@@ -80,6 +85,7 @@ export async function updateTemplate(_prev: string, formData: FormData): Promise
 
 export async function savePricing(_prev: string, formData: FormData): Promise<string> {
   const admin = await requireAdmin();
+  if (ADMIN_DEMO) return "Demo mode: changes are not saved.";
   let config: PricingConfig;
   try {
     config = JSON.parse(String(formData.get("config")));
@@ -99,6 +105,7 @@ export async function savePricing(_prev: string, formData: FormData): Promise<st
 }
 
 export async function signOut() {
+  if (ADMIN_DEMO) redirect("/admin/login");
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
