@@ -175,19 +175,14 @@ export default async function HomePage() {
 
           {/* Step 3: photos left, text right */}
           <Step>
-            <div className="grid grid-cols-2 gap-4">
-              <figure data-step-media data-from="left">
-                <figcaption className="mb-2 font-script text-[22px] text-ink-2">Tabloid</figcaption>
-                <div className="relative aspect-[278/243] w-full overflow-hidden">
-                  <Image src="/home/step3-tabloid.jpg" alt="A stack of tabloid-size newspapers" fill sizes="(min-width: 768px) 250px, 45vw" className="object-cover" />
-                </div>
-              </figure>
-              <figure data-step-media data-from="left">
-                <figcaption className="mb-2 font-script text-[22px] text-ink-2">Broadsheet</figcaption>
-                <div className="relative aspect-[278/243] w-full overflow-hidden">
-                  <Image src="/home/step3-broadsheet.jpg" alt="A stack of broadsheet-size newspapers" fill sizes="(min-width: 768px) 250px, 45vw" className="object-cover" />
-                </div>
-              </figure>
+            <div data-step-media data-from="left" className="relative aspect-[1280/853] w-full overflow-hidden">
+              <Image
+                src="/home/step3-sizes.jpg"
+                alt="Paper size comparison: A4, tabloid 24 × 33 cm and broadsheet 35.7 × 50 cm"
+                fill
+                sizes="(min-width: 768px) 520px, 100vw"
+                className="object-contain"
+              />
             </div>
             <div data-step-text>
               <StepHeading n={3} title="Choose your size" />
@@ -211,7 +206,16 @@ export default async function HomePage() {
                 <Option title="No frame">Keep your design as an authentic newspaper</Option>
               </div>
             </div>
-            <StepImage from="right" src="/home/step4-frame.jpg" alt="Framed newspapers on a wall" />
+            {/* The framed paper is portrait, so it keeps its own shape (bug list R7). */}
+            <div data-step-media data-from="right" className="relative mx-auto aspect-[914/1280] w-full max-w-[340px] overflow-hidden">
+              <Image
+                src="/home/step4-frame.jpg"
+                alt="A framed Tailored Times anniversary newspaper"
+                fill
+                sizes="(min-width: 768px) 340px, 70vw"
+                className="object-contain"
+              />
+            </div>
           </Step>
 
           {/* Step 5: photo left, text right */}

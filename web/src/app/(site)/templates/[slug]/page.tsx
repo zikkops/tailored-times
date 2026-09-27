@@ -22,10 +22,8 @@ export default async function TemplatePage(props: PageProps<"/templates/[slug]">
       {/* The previews stay centred in the window (below the sticky header) for
           as long as the form beside them is still scrolling past. */}
       <div>
-        <div className="md:sticky md:top-28 md:flex md:h-[calc(100vh-8rem)] md:items-center">
-          <div className="w-full">
-            <PreviewSlider images={template.previewImages} name={template.name} />
-          </div>
+        <div className="md:sticky md:top-28 md:h-[calc(100vh-9rem)] md:py-2">
+          <PreviewSlider images={template.previewImages} name={template.name} />
         </div>
       </div>
       <div className="pt-4">

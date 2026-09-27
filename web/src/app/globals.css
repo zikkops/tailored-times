@@ -37,6 +37,14 @@
   --font-news: var(--font-news-face), Georgia, "Times New Roman", serif;
 }
 
+/* Tailwind v4 leaves buttons with the default arrow; bring back the hand
+   cursor on anything clickable (carousel arrows, option buttons, dots…). */
+button:not(:disabled),
+label:has(> input[type="radio"]),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
 body {
   background: #fff;
   color: var(--ink);

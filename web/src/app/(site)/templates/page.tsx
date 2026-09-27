@@ -23,7 +23,6 @@ export default async function TemplatesPage() {
         templates={templates.map((t) => ({
           slug: t.slug,
           name: t.name,
-          category: t.category,
           blurb: t.blurb,
           cover: t.previewImages[0] ?? null,
         }))}

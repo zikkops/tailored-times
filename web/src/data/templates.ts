@@ -48,7 +48,7 @@ export const TEMPLATES: TemplateSeed[] = [
   {
     slug: "mothers-fathers-day",
     legacySlug: "mothers-day-template",
-    name: "Mother's / Father's Day",
+    name: "Mother's/Father's Day",
     category: "Mother's & Father's day",
     blurb: "Celebrate Mom like the star she is with a custom newspaper — filled with love, laughs, and headline-worthy memories.",
     previewImages: ["/templates/mothers-fathers-day/1.jpg", "/templates/mothers-fathers-day/2.jpg", "/templates/mothers-fathers-day/3.jpg", "/templates/mothers-fathers-day/4.jpg"],
@@ -70,7 +70,7 @@ export const TEMPLATES: TemplateSeed[] = [
     previewImages: ["/templates/menu/1.jpg", "/templates/menu/2.jpg", "/templates/menu/3.jpg", "/templates/menu/4.jpg"],
   },
   {
-    slug: "christian-wedding",
+    slug: "wedding-1",
     legacySlug: "christan-wedding-template",
     name: "Wedding 1",
     category: "Wedding",
@@ -78,7 +78,7 @@ export const TEMPLATES: TemplateSeed[] = [
     previewImages: ["/templates/christian-wedding/1.jpg", "/templates/christian-wedding/2.jpg", "/templates/christian-wedding/3.jpg", "/templates/christian-wedding/4.jpg"],
   },
   {
-    slug: "muslim-wedding",
+    slug: "wedding-2",
     legacySlug: "muslim-wedding-template",
     name: "Wedding 2",
     category: "Wedding",
@@ -86,7 +86,7 @@ export const TEMPLATES: TemplateSeed[] = [
     previewImages: ["/templates/muslim-wedding/1.jpg", "/templates/muslim-wedding/2.jpg", "/templates/muslim-wedding/3.jpg", "/templates/muslim-wedding/4.jpg"],
   },
   {
-    slug: "basketball-tribute",
+    slug: "sports-tribute",
     legacySlug: "basketball-tribute",
     name: "Sports Tribute",
     category: "Sports tribute",

@@ -2,13 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 // Template gallery: each template as a printed front page on a white mat
-// (lifts on hover), with its category, name, blurb and a "Customize" link.
+// (lifts on hover), with its name, blurb and a "Customize" link.
 // Two columns on phones, three on desktop.
 
 export type GalleryTemplate = {
   slug: string;
   name: string;
-  category: string;
   blurb: string;
   cover: string | null;
 };
@@ -37,10 +36,7 @@ export function TemplateGallery({ templates }: { templates: GalleryTemplate[] })
               </div>
 
               <div className="mt-4 text-center">
-                <p className="font-roboto text-[10px] font-medium uppercase tracking-[0.25em] text-muted sm:text-[11px]">
-                  {t.category}
-                </p>
-                <h2 className="mt-1 font-news text-lg font-bold leading-tight text-ink sm:text-[22px]">{t.name}</h2>
+                <h2 className="font-news text-lg font-bold leading-tight text-ink sm:text-[22px]">{t.name}</h2>
                 <p className="mx-auto mt-2 hidden max-w-[34ch] font-bauhaus text-sm leading-relaxed text-ink/75 sm:line-clamp-2">
                   {t.blurb}
                 </p>

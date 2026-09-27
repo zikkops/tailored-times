@@ -111,6 +111,42 @@ Export them from WordPress (see P0.2).**
 
 - **GitHub (22 Sep):** pushed to https://github.com/zikkops/tailored-times (public, `main`). Fonts are gitignored (`web/.gitignore`) because the repo is public; `README.md` explains how to add them. Since 22 Sep the licensed fonts load from `web/public/fonts/` via CSS when present, with free lookalikes (Lobster for Blenda Script, Comfortaa for Bauhaus) as fallback, so builds (e.g. Vercel, root directory `web`) never fail without them.
 
+## Owner bug list v2 (Website Bugs - Mark Version 2, 26 Sep 2026)
+
+The second list is 29 rows: the per-template field corrections are gone (the
+numbering workbook replaced them). Status of the rest:
+
+- Already fixed on 24 Sep: R2 Wedding 1 blurb, R4 step 1 names, R5 cover page,
+  R8 "Customize your Experience!", R9 Maya's review, R11 notes box at the end of
+  step 2, R14 growing text boxes, R15 pages help + designer from 8 pages.
+- **R13 (26 Sep)** URLs now match the names: `/templates/wedding-1`,
+  `/templates/wedding-2`, `/templates/sports-tribute`. The old rebuild slugs
+  (christian-wedding, muslim-wedding, basketball-tribute) 301 to the new ones,
+  and the WordPress slugs still redirect as before.
+- **R17 (26 Sep)** Birthday 2 family tree: "31. Alterations to the family tree"
+  ("addition 1 between M and N: Aya Akl") and "30. Photos to add to the family
+  tree" ("name each photo after the person, e.g. image 1 - Aya Akl"). Set in
+  `OVERRIDES` in `scripts/generate-template-forms.ts`, so re-running the
+  generator keeps them.
+- **R22 (26 Sep)** Name is "Mother's/Father's Day".
+- **R26** Sports Tribute: done 24 Sep.
+- **R19 Corporate "[if error]"**: nothing like it in the generated forms; that was
+  the WordPress form. Checked all 708 fields for error text: none.
+- **R29 back button lags**: not reproducible here. Measured going into a template
+  and back three times: 7–11 ms to return. That is the live WordPress site.
+- **R28 spam inbox**: honeypot + rate limit are in place (5 orders / 3 messages
+  per visitor per 10 minutes). The inbox itself is WordPress/email, outside this
+  rebuild; once orders arrive in Supabase instead, the spam route is gone.
+- **R6, R7 (27 Sep)** New home images in place: step 3 is now one paper-size
+  comparison chart (the two captioned stacks are gone), step 4 the framed
+  anniversary paper. Owner also asked for: no category line above the template
+  names in the gallery, and the hand cursor back on buttons (Tailwind v4 drops
+  it; restored globally in `globals.css`).
+- Still blocked:
+  **R12** numbered template previews (artwork not supplied), **R20** Corporate
+  "all the text past 31 are on the right" (about the printed artwork, not the
+  site), **R24** promotion "click here" (WordPress only).
+
 ## Owner bug list (Website Bugs - Mark Version.xlsx, 24 Sep 2026)
 
 The spreadsheet has 91 rows. Rows 16–88 describe the numbered fields inside each

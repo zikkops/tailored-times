@@ -1021,15 +1021,16 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     },
     {
       "key": "n30_additional_photos_for_the_family_tree",
-      "label": "30. Additional Photos for the Family Tree",
+      "label": "30. Photos to add to the family tree",
       "type": "file",
       "multiple": true,
-      "help": "Please make sure to number the pictures and the names clearly for their addition in the correct space."
+      "help": "Name each photo after the person it shows, e.g. \"image 1 - Aya Akl\", and number them clearly so we add them in the right place."
     },
     {
       "key": "n31_additional_names_for_the_family_tree",
-      "label": "31. Additional Names for the Family Tree",
-      "type": "textarea"
+      "label": "31. Alterations to the family tree",
+      "type": "textarea",
+      "help": "Adding or removing anyone? Give the number and the name, e.g. \"addition 1 between M and N: Aya Akl\"."
     }
   ],
   "corporate": [
@@ -2777,7 +2778,7 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "type": "file"
     }
   ],
-  "basketball-tribute": [
+  "sports-tribute": [
     {
       "key": "n1_location",
       "label": "1. Location",
@@ -3134,7 +3135,7 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "type": "file"
     }
   ],
-  "christian-wedding": [
+  "wedding-1": [
     {
       "key": "n1_time",
       "label": "1. Time",
@@ -3342,7 +3343,7 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "The puzzle will be edited based on your chosen words."
     }
   ],
-  "muslim-wedding": [
+  "wedding-2": [
     {
       "key": "n1_location",
       "label": "1. Location",

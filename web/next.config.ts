@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         permanent: true,
       })),
       { source: "/template-gallery", destination: "/templates", permanent: true },
+      // Slugs this site used before the names were made consistent (bug list R13).
+      { source: "/templates/christian-wedding", destination: "/templates/wedding-1", permanent: true },
+      { source: "/templates/muslim-wedding", destination: "/templates/wedding-2", permanent: true },
+      { source: "/templates/basketball-tribute", destination: "/templates/sports-tribute", permanent: true },
       { source: "/contact-us", destination: "/contact", permanent: true },
       // Unused WooCommerce and test pages from the old site.
       ...["/shop", "/cart", "/checkout", "/my-account", "/test-calculator", "/trial-form", "/template-page"].map(
