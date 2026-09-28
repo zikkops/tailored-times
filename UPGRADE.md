@@ -227,7 +227,9 @@ Owner: build the back office for looks first, no APIs, then connect the real
 one. Back end stays **Supabase** (asked and confirmed 27 Sep), so none of the
 database, login or storage code is thrown away.
 
-- `NEXT_PUBLIC_ADMIN_DEMO=1` in `web/.env.local` turns on demo mode: sample
+- Demo mode is **on by default** (28 Sep), so the deployed site has a working
+  admin before Supabase exists. `NEXT_PUBLIC_ADMIN_DEMO=0` turns it off and
+  hands over to the real login. Demo mode means: sample
   orders and messages from `src/lib/demo.ts`, no login, nothing saved, and a
   yellow band across the top saying so. Every admin action returns early.
 - `src/lib/admin-data.ts` is the single source the admin pages read from:
