@@ -177,4 +177,4 @@ export const DEMO_EVENTS: Record<string, { from_status: OrderStatus | null; to_s
   ],
 };
 
-export const DEMO_ADMIN = { id: "demo-admin", email: "demo@tailored-times.com", role: "owner" as const };
+export const DEMO_ADMIN = { id: "demo-admin", email: "admin@gmail.com", role: "owner" as const };

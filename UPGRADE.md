@@ -237,7 +237,11 @@ database, login or storage code is thrown away.
   this month), search and status filter; one order with customer, paper,
   step-2 answers, photos, status control and history; messages with unhandled
   first and a reply link; templates and prices.
-- **Turn the flag off** before real orders exist: it skips the login.
+- A pretend login guards the demo: **admin@gmail.com / Testpassword** (change
+  with `DEMO_ADMIN_USER` / `DEMO_ADMIN_PASSWORD`). It is a plain comparison that
+  sets a cookie, protecting nothing real, and only exists while the flag is on.
+- **Turn the flag off** before real orders exist: the real Supabase login and
+  the `admins` table take over.
 - Next, to connect it for real: run `web/supabase/setup.sql`, put the
   `sb_secret_…` key in `SUPABASE_SERVICE_ROLE_KEY`, create the first admin
   user, then remove `NEXT_PUBLIC_ADMIN_DEMO`. Photos already go to the private

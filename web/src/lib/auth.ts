@@ -1,8 +1,9 @@
 import "server-only";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DEMO_ADMIN } from "@/lib/demo";
-import { ADMIN_DEMO, isSupabaseConfigured } from "@/lib/env";
+import { ADMIN_DEMO, DEMO_COOKIE, isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export type AdminUser = { id: string; email: string; role: "owner" | "admin" };
@@ -10,7 +11,7 @@ export type AdminUser = { id: string; email: string; role: "owner" | "admin" };
 // Returns the signed-in admin, or null. Checks the `admins` table on every
 // call; proxy.ts only does the cheap "is there a session" redirect.
 export async function getAdmin(): Promise<AdminUser | null> {
-  if (ADMIN_DEMO) return DEMO_ADMIN;
+  if (ADMIN_DEMO) return (await cookies()).has(DEMO_COOKIE) ? DEMO_ADMIN : null;
   if (!isSupabaseConfigured) return null;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

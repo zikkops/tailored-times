@@ -13,3 +13,12 @@ export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 // saved. For designing the back office before the real one exists. Must be off
 // (unset) anywhere real orders live.
 export const ADMIN_DEMO = process.env.NEXT_PUBLIC_ADMIN_DEMO === "1";
+
+// The pretend login used while ADMIN_DEMO is on. It guards nothing real: the
+// data behind it is sample data, and the check below is a plain comparison.
+// Never reuse these on a site with real orders.
+export const DEMO_LOGIN = {
+  user: process.env.DEMO_ADMIN_USER ?? "admin@gmail.com",
+  password: process.env.DEMO_ADMIN_PASSWORD ?? "Testpassword",
+};
+export const DEMO_COOKIE = "tt_demo_admin";

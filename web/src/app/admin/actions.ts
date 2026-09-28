@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { requireAdmin } from "@/lib/auth";
-import { ADMIN_DEMO } from "@/lib/env";
+import { ADMIN_DEMO, DEMO_COOKIE, DEMO_LOGIN } from "@/lib/env";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import { DEFAULT_PRICING, type PricingConfig } from "@/lib/pricing";
 import { createClient } from "@/lib/supabase/server";
@@ -104,8 +105,23 @@ export async function savePricing(_prev: string, formData: FormData): Promise<st
   return "Prices saved.";
 }
 
+// Demo sign-in: checks the fixed user and password and drops a cookie the
+// proxy looks for. Only ever reachable while ADMIN_DEMO is on.
+export async function demoSignIn(_prev: string, formData: FormData): Promise<string> {
+  if (!ADMIN_DEMO) return "Demo login is switched off.";
+  const user = String(formData.get("user") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  if (user !== DEMO_LOGIN.user || password !== DEMO_LOGIN.password) return "Wrong user or password.";
+  const jar = await cookies();
+  jar.set(DEMO_COOKIE, "1", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 8 });
+  redirect("/admin");
+}
+
 export async function signOut() {
-  if (ADMIN_DEMO) redirect("/admin/login");
+  if (ADMIN_DEMO) {
+    (await cookies()).delete(DEMO_COOKIE);
+    redirect("/admin/login");
+  }
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
