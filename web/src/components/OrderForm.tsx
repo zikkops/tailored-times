@@ -22,6 +22,8 @@ import {
 type Props = {
   template: { slug: string; name: string; formSchema: FormField[] };
   pricing: PricingConfig;
+  // The signed-in customer's saved details, used to fill in the last step.
+  you?: { name: string; phone: string; email: string; address: string } | null;
 };
 
 // Help texts from the live calculator's "?" tooltips.
@@ -132,7 +134,7 @@ function Options<T extends string | number>({
   );
 }
 
-export function OrderForm({ template, pricing }: Props) {
+export function OrderForm({ template, pricing, you }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
@@ -353,22 +355,27 @@ export function OrderForm({ template, pricing }: Props) {
       {/* Step 3: delivery and review */}
       <fieldset className={step === 2 ? "space-y-5" : "hidden"}>
         <legend className="mb-2 font-news text-2xl font-bold text-ink">Delivery details</legend>
+        {you && (
+          <p className="-mt-1 font-roboto text-sm text-muted">
+            Filled in from your account. Change anything here for this order; your saved details stay as they are.
+          </p>
+        )}
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <Label htmlFor="customer_name">Full name *</Label>
-            <input id="customer_name" name="customer_name" required autoComplete="name" className={input} />
+            <input id="customer_name" name="customer_name" defaultValue={you?.name ?? ""} required autoComplete="name" className={input} />
           </div>
           <div>
             <Label htmlFor="customer_phone">Phone number *</Label>
-            <input id="customer_phone" name="customer_phone" type="tel" required autoComplete="tel" className={input} />
+            <input id="customer_phone" name="customer_phone" type="tel" defaultValue={you?.phone ?? ""} required autoComplete="tel" className={input} />
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="customer_email">Email</Label>
-            <input id="customer_email" name="customer_email" type="email" autoComplete="email" className={input} />
+            <input id="customer_email" name="customer_email" type="email" defaultValue={you?.email ?? ""} autoComplete="email" className={input} />
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="delivery_address">Delivery address *</Label>
-            <GrowingTextarea id="delivery_address" name="delivery_address" required rows={2} autoComplete="street-address" className={input} />
+            <GrowingTextarea id="delivery_address" name="delivery_address" defaultValue={you?.address ?? ""} required rows={2} autoComplete="street-address" className={input} />
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="notes">Anything else we should know?</Label>

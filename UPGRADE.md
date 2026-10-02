@@ -216,6 +216,36 @@ we already have, so **no template was missing** and no placeholder was needed.
 - **R91** Back button lags after opening a template: not reproduced yet; revisit on
   the deployed site (local dev rebuilds pages on navigation, which looks like lag).
 
+## Customer accounts (2 Oct 2026)
+
+Owner's goals: a working back end, a login for admins **and customers**, and
+each customer able to see what they ordered before and edit their details.
+Decisions (asked 2 Oct): accounts are **optional** (guest ordering stays),
+sign-in is **email + password**, and customers edit **their details only** —
+orders are changed by the team.
+
+- `supabase/migrations/0002_customer_accounts.sql`: `profiles` (name, phone,
+  email, address) with a row created on sign-up by a trigger; `orders.user_id`;
+  RLS so people read their own orders, answers, files and events, and update
+  only their own profile; `claim_orders()` attaches past guest orders with the
+  same email.
+- Pages under `/account`: sign in / create account / reset (one card),
+  **My orders**, one order (read-only, with a progress bar), **My details**.
+  `lib/account.ts` + `(site)/account/actions.ts` hold the server side.
+- Ordering while signed in fills the delivery step from the profile and ties
+  the order to the account; the confirmation page offers guests an account that
+  picks up the order they just placed.
+- Header has "My account"; `/account` sends signed-out visitors to the login.
+- **Database is live (2 Oct).** The schema (0001 + 0002) was run in the Supabase
+  SQL editor, and `npm run db:seed` (`scripts/seed-supabase.ts`) loaded the 15
+  templates with their step-2 fields and the price list straight from the app
+  files. Nine tables exist; visitors can read templates and prices.
+- **Next:** create the first user (owner signs up on the site or in Supabase),
+  add them to `admins`, and decide on email confirmation while testing.
+- When the database is live: set `NEXT_PUBLIC_ADMIN_DEMO=0` locally and in
+  Vercel, create the first admin user, and check Supabase's email settings
+  (sign-up confirmation and password reset emails).
+
 ## Admin back office, demo first (27 Sep 2026)
 
 Also 27 Sep: a 404 page in the site style (`src/app/not-found.tsx`): taped

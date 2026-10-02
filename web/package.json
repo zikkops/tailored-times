@@ -10,7 +10,8 @@
     "test": "vitest run",
     "db:seed-sql": "node scripts/generate-seed.ts",
     "db:setup-sql": "node scripts/build-setup-sql.ts",
-    "gen:forms": "node scripts/generate-template-forms.ts"
+    "gen:forms": "node scripts/generate-template-forms.ts",
+    "db:seed": "node scripts/seed-supabase.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

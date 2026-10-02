@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { getPricing, getTemplate } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { calculatePrice, DESIGNER_REQUIRED_FROM_PAGES, FORMATS, SIZES, type Format, type Size } from "@/lib/pricing";
+import { getCustomer } from "@/lib/account";
 import { notifyNewOrder } from "@/lib/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -125,10 +126,15 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
     if (!PHOTO_TYPES.includes(file.type)) return { ok: false, error: `"${file.name}" isn't a JPG, PNG, WEBP or HEIC photo.` };
   }
 
+  // An order placed while signed in belongs to that account straight away;
+  // a guest order is claimed later, when they sign up with the same email.
+  const account = await getCustomer();
+
   const db = createAdminClient();
   const { data: order, error } = await db
     .from("orders")
     .insert({
+      user_id: account?.id ?? null,
       template_id: template.id,
       template_name: template.name,
       ...input,

@@ -28,9 +28,14 @@ export function SiteHeader() {
       <div className="bg-ink text-paper/80">
         <div className="mx-auto flex max-w-[1140px] items-center justify-between gap-4 px-4 py-1.5 font-roboto text-[10px] uppercase tracking-[0.25em] sm:text-[11px]">
           <span className="truncate">Custom newspapers for every occasion</span>
-          <a href="tel:+96181587957" className="hidden shrink-0 hover:text-paper sm:inline">
-            +961 81 587 957
-          </a>
+          <span className="flex shrink-0 items-center gap-4">
+            <a href="tel:+96181587957" className="hidden hover:text-paper sm:inline">
+              +961 81 587 957
+            </a>
+            <Link href="/account" className="hover:text-paper">
+              My account
+            </Link>
+          </span>
         </div>
       </div>
 

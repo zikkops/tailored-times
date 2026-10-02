@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { OrderForm } from "@/components/OrderForm";
 import { PreviewSlider } from "@/components/PreviewSlider";
+import { getCustomer } from "@/lib/account";
 import { getPricing, getTemplate } from "@/lib/data";
 
 export async function generateMetadata(props: PageProps<"/templates/[slug]">): Promise<Metadata> {
@@ -14,8 +15,18 @@ export async function generateMetadata(props: PageProps<"/templates/[slug]">): P
 // blurb and the calculator/order card on the right.
 export default async function TemplatePage(props: PageProps<"/templates/[slug]">) {
   const { slug } = await props.params;
-  const [template, pricing] = await Promise.all([getTemplate(slug), getPricing()]);
+  const [template, pricing, customer] = await Promise.all([getTemplate(slug), getPricing(), getCustomer()]);
   if (!template) notFound();
+
+  // Signed in? Start the delivery step from their saved details.
+  const you = customer
+    ? {
+        name: customer.profile?.full_name ?? "",
+        phone: customer.profile?.phone ?? "",
+        email: customer.email,
+        address: customer.profile?.address ?? "",
+      }
+    : null;
 
   return (
     <div className="mx-auto grid max-w-[1400px] gap-10 px-4 py-6 md:grid-cols-[minmax(0,460px)_1fr] lg:gap-14 xl:grid-cols-[minmax(0,560px)_1fr]">
@@ -32,6 +43,7 @@ export default async function TemplatePage(props: PageProps<"/templates/[slug]">
         <OrderForm
           template={{ slug: template.slug, name: template.name, formSchema: template.formSchema }}
           pricing={pricing}
+          you={you}
         />
       </div>
     </div>
