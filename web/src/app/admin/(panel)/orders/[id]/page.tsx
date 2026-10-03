@@ -5,6 +5,7 @@ import { StatusBadge } from "../../StatusBadge";
 import { getOrderDetail } from "@/lib/admin-data";
 import { ADMIN_DEMO } from "@/lib/env";
 import { ORDER_STATUSES } from "@/lib/orders";
+import { paymentLabel } from "@/lib/payments";
 
 // One order: what was ordered, who it is for, what the customer wrote and
 // uploaded, plus the status control and the history.
@@ -38,7 +39,7 @@ export default async function AdminOrderPage(props: PageProps<"/admin/orders/[id
         ] as [string, string][])
       : []),
     ["Designer", order.designer ? "Yes" : "No"],
-    ["Payment", order.payment_method === "cod" ? "Cash on delivery" : order.payment_method],
+    ["Payment", paymentLabel(order.payment_method)],
   ];
 
   return (

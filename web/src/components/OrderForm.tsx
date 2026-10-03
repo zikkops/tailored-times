@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createOrder } from "@/app/actions";
 import type { FormField } from "@/lib/data";
+import { DEFAULT_PAYMENT_METHOD, PAYMENT_METHODS } from "@/lib/payments";
 import {
   calculatePrice,
   DESIGNER_REQUIRED_FROM_PAGES,
@@ -146,6 +147,7 @@ export function OrderForm({ template, pricing, you }: Props) {
   const [copies, setCopies] = useState(1);
   const [frames, setFrames] = useState<"No" | "Yes">("No");
   const [designer, setDesigner] = useState<"No" | "Yes">("No");
+  const [payment, setPayment] = useState(DEFAULT_PAYMENT_METHOD);
 
   const isDigital = format === "Digital copy";
   const setCopiesSafe = (n: number) => setCopies(Math.max(1, Math.min(500, Math.floor(n) || 1)));
@@ -192,6 +194,7 @@ export function OrderForm({ template, pricing, you }: Props) {
       <input type="hidden" name="copies" value={order.copies} />
       <input type="hidden" name="frames" value={order.frames ? "yes" : "no"} />
       <input type="hidden" name="designer" value={order.designer ? "yes" : "no"} />
+      <input type="hidden" name="payment_method" value={payment} />
       {/* Honeypot: people never see or fill this. */}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
 
@@ -383,6 +386,45 @@ export function OrderForm({ template, pricing, you }: Props) {
           </div>
         </div>
 
+        {/* How they pay. One method for now; the rest are shown as not yet available. */}
+        <div>
+          <Label>Payment</Label>
+          <div role="radiogroup" aria-label="Payment" className="space-y-2">
+            {PAYMENT_METHODS.map((m) => {
+              const on = m.id === payment;
+              return (
+                <label
+                  key={m.id}
+                  className={`flex items-start gap-3 rounded-sm border p-3 ${
+                    m.enabled
+                      ? on
+                        ? "border-ink-2 bg-white"
+                        : "border-ink/25 bg-white hover:border-ink"
+                      : "border-ink/15 bg-paper/40 opacity-60"
+                  } ${m.enabled ? "cursor-pointer" : "cursor-not-allowed"}`}
+                >
+                  <input
+                    type="radio"
+                    name="payment_choice"
+                    value={m.id}
+                    checked={on}
+                    disabled={!m.enabled}
+                    onChange={() => setPayment(m.id)}
+                    className="mt-1 accent-[color:var(--ink-2)]"
+                  />
+                  <span>
+                    <span className="block font-roboto text-sm font-medium text-ink">
+                      {m.label}
+                      {!m.enabled && " — coming soon"}
+                    </span>
+                    <span className="block font-roboto text-xs text-muted">{m.help}</span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Order summary, receipt style */}
         <div className="border border-dashed border-ink/40 bg-white/60 p-4 font-roboto text-sm">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/80">Your order</p>
@@ -399,7 +441,9 @@ export function OrderForm({ template, pricing, you }: Props) {
             <span aria-hidden className="mb-1 flex-1 border-b border-dotted border-ink/40" />
             <span className="font-news text-2xl font-bold text-ink">{price.toFixed(1)} USD</span>
           </div>
-          <p className="mt-1 text-right text-xs text-muted">Cash on delivery · Free delivery</p>
+          <p className="mt-1 text-right text-xs text-muted">
+            {PAYMENT_METHODS.find((m) => m.id === payment)?.label} · Free delivery
+          </p>
         </div>
 
         {error && (

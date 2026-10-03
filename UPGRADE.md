@@ -246,6 +246,45 @@ orders are changed by the team.
   Vercel, create the first admin user, and check Supabase's email settings
   (sign-up confirmation and password reset emails).
 
+## Paying for an order (3 Oct 2026)
+
+Owner (3 Oct): check the payment process, make it work with and without an
+account, and keep it cash on delivery until a second method is added.
+
+- `src/lib/payments.ts` is the one list of methods. Each has a label, the help
+  line shown in the form, the sentence used after ordering, and `enabled`.
+  Today: **cash on delivery** enabled, **card online** listed as coming soon.
+  Adding a method later means one entry here, not a hunt through the pages.
+- Step 3 of the order form shows the methods as a radio group; the ones that
+  are off are greyed out and cannot be picked. The choice travels in a hidden
+  `payment_method` field, and `createOrder` only accepts a method that is
+  actually enabled, falling back to the default - the browser cannot talk the
+  site into a method it does not take (same rule as the price).
+- The confirmation page, the customer's order page and the admin order page all
+  name the method from that list instead of spelling out "cash on delivery".
+
+**Tested end to end against the live database (3 Oct):**
+
+- **Guest:** order placed without signing in gave `TT-000001`, `user_id` null,
+  `payment_method = 'cod'`, price 33.3 recalculated on the server, 35 answers
+  and the `ordered` event saved. The confirmation offers an account.
+- **Claiming:** signing in with the same email ran `claim_orders()` and
+  `TT-000001` became the account's - it shows under **My orders**.
+- **Signed in:** the delivery step came pre-filled from the profile (name,
+  phone, email), and order `TT-000002` was tied to the account at once. Both
+  orders are listed newest first, each opening a read-only page with its
+  progress bar and "Payment: Cash on delivery".
+- **My details:** saving name, phone and address works; the email is shown but
+  cannot be edited. In the database itself customers only have read access to
+  orders (RLS gives them no update policy), so the team stays in charge.
+- Test data: the two test orders and the test customer `guest.test@example.com`
+  are still in the database - say the word and they go.
+- **Still open:** Supabase has email confirmation **on**, and the built-in
+  mailer only sends a handful of messages an hour (on a free project often only
+  to the project owner's own address). Until a real sender is set up, either
+  turn confirmation off or expect sign-ups to stall at "check your email".
+  Guest ordering is unaffected.
+
 ## Admin back office, demo first (27 Sep 2026)
 
 Also 27 Sep: a 404 page in the site style (`src/app/not-found.tsx`): taped

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMyOrder, requireCustomer } from "@/lib/account";
 import { ORDER_STATUSES } from "@/lib/orders";
+import { paymentLabel } from "@/lib/payments";
 
 export const metadata: Metadata = { title: "Your order" };
 
@@ -33,7 +34,7 @@ export default async function MyOrderPage(props: PageProps<"/account/orders/[id]
         ] as [string, string][])
       : []),
     ["Designer", order.designer ? "Yes" : "No"],
-    ["Payment", order.payment_method === "cod" ? "Cash on delivery" : order.payment_method],
+    ["Payment", paymentLabel(order.payment_method)],
     ["Price", `${Number(order.price).toFixed(1)} ${order.currency}`],
   ];
 

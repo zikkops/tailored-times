@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { after } from "next/server";
 import { getPricing, getTemplate } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
+import { DEFAULT_PAYMENT_METHOD, isPayable } from "@/lib/payments";
 import { calculatePrice, DESIGNER_REQUIRED_FROM_PAGES, FORMATS, SIZES, type Format, type Size } from "@/lib/pricing";
 import { getCustomer } from "@/lib/account";
 import { notifyNewOrder } from "@/lib/notify";
@@ -93,6 +94,12 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
   };
   const price = calculatePrice(input, pricing); // never trust a price from the browser
 
+  // Only methods the site actually takes; anything else falls back to the
+  // default (cash on delivery today).
+  const paymentMethod = isPayable(str(formData, "payment_method", 40))
+    ? str(formData, "payment_method", 40)
+    : DEFAULT_PAYMENT_METHOD;
+
   const customer = {
     name: str(formData, "customer_name", 200),
     phone: str(formData, "customer_phone", 50),
@@ -143,6 +150,7 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
       customer_phone: customer.phone,
       customer_email: customer.email || null,
       delivery_address: customer.address,
+      payment_method: paymentMethod,
       notes: str(formData, "notes", 5000) || null,
     })
     .select("id, reference")

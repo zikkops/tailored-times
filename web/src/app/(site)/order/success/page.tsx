@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCustomer } from "@/lib/account";
+import { DEFAULT_PAYMENT_METHOD, paymentAfter, paymentLabel } from "@/lib/payments";
 
 export const metadata: Metadata = { title: "Order received" };
 
@@ -29,7 +30,10 @@ export default async function OrderSuccessPage(props: PageProps<"/order/success"
           </p>
         )}
         <p className="mx-auto mt-3 max-w-[48ch] font-bauhaus text-base text-ink/80">
-          Our team will contact you to go over the details. You pay cash on delivery, and delivery is free.
+          Our team will contact you to go over the details. {paymentAfter(DEFAULT_PAYMENT_METHOD)} Delivery is free.
+        </p>
+        <p className="mt-2 font-roboto text-xs uppercase tracking-[0.18em] text-ink/60">
+          Payment: {paymentLabel(DEFAULT_PAYMENT_METHOD)}
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
