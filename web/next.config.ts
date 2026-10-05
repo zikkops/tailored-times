@@ -1,5 +1,25 @@
 import type { NextConfig } from "next";
-import { TEMPLATES } from "./src/data/templates";
+
+// Old WordPress template URLs → new slugs. Kept inline (no local imports) because
+// hosts like Hostinger copy this file elsewhere and load it with plain Node, which
+// can't resolve "./src/...". src/lib/next-config.test.ts checks it matches TEMPLATES.
+export const LEGACY_TEMPLATE_REDIRECTS: Record<string, string> = {
+  "birthday-template": "birthday",
+  "birthday-template-2": "birthday-2",
+  "anniversary-template": "anniversary",
+  "retirement-template": "retirement",
+  "mothers-day-template": "mothers-fathers-day",
+  "summer-camp-template": "summer-camp",
+  "menu-template": "menu",
+  "christan-wedding-template": "wedding-1",
+  "muslim-wedding-template": "wedding-2",
+  "basketball-tribute": "sports-tribute",
+  "events-template": "events",
+  "baby-shower-template": "baby-shower",
+  "corporate-template": "corporate",
+  "fashion-magazine-template": "fashion-magazine",
+  "promotion-template": "promotion",
+};
 
 const nextConfig: NextConfig = {
   // Orders carry up to 10 photos of 5 MB each (checked again in createOrder).
@@ -9,9 +29,9 @@ const nextConfig: NextConfig = {
   // Old WordPress URLs keep working (and keep their Google ranking).
   async redirects() {
     return [
-      ...TEMPLATES.map((t) => ({
-        source: `/${t.legacySlug}`,
-        destination: `/templates/${t.slug}`,
+      ...Object.entries(LEGACY_TEMPLATE_REDIRECTS).map(([legacySlug, slug]) => ({
+        source: `/${legacySlug}`,
+        destination: `/templates/${slug}`,
         permanent: true,
       })),
       { source: "/template-gallery", destination: "/templates", permanent: true },
