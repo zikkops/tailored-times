@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { claimPastOrders } from "@/lib/account";
+import { accountKey, allow, clientKey, TOO_MANY_SIGNIN_MESSAGE } from "@/lib/rate-limit";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,6 +14,8 @@ export type AuthResult = { ok: true; message?: string } | { ok: false; error: st
 
 const str = (fd: FormData, key: string, max = 300) => String(fd.get(key) ?? "").trim().slice(0, max);
 
+const TOO_MANY: AuthResult = { ok: false, error: TOO_MANY_SIGNIN_MESSAGE };
+
 const NOT_READY: AuthResult = {
   ok: false,
   error: "Accounts aren't connected yet. Please contact us on +961 81 587 957.",
@@ -20,6 +23,7 @@ const NOT_READY: AuthResult = {
 
 export async function signUp(_prev: AuthResult | null, formData: FormData): Promise<AuthResult> {
   if (!isSupabaseConfigured) return NOT_READY;
+  if (!(await allow("signup", await clientKey()))) return TOO_MANY;
 
   const email = str(formData, "email", 200).toLowerCase();
   const password = String(formData.get("password") ?? "");
@@ -27,7 +31,7 @@ export async function signUp(_prev: AuthResult | null, formData: FormData): Prom
   const phone = str(formData, "phone", 50);
 
   if (!/^\S+@\S+\.\S+$/.test(email)) return { ok: false, error: "Please check your email address." };
-  if (password.length < 8) return { ok: false, error: "Your password needs at least 8 characters." };
+  if (password.length < 10) return { ok: false, error: "Your password needs at least 10 characters." };
   if (!full_name) return { ok: false, error: "Please tell us your name." };
 
   const supabase = await createClient();
@@ -52,6 +56,15 @@ export async function signIn(_prev: AuthResult | null, formData: FormData): Prom
 
   const email = str(formData, "email", 200).toLowerCase();
   const password = String(formData.get("password") ?? "");
+
+  // Guessing is slowed down from both ends: how often this visitor may try,
+  // and how often this account may be tried from anywhere at all.
+  const [visitorOk, accountOk] = await Promise.all([
+    allow("signin", await clientKey()),
+    allow("signinAccount", accountKey(email)),
+  ]);
+  if (!visitorOk || !accountOk) return { ok: false, error: TOO_MANY_SIGNIN_MESSAGE };
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { ok: false, error: "Wrong email or password." };
@@ -64,9 +77,16 @@ export async function sendReset(_prev: AuthResult | null, formData: FormData): P
   if (!isSupabaseConfigured) return NOT_READY;
   const email = str(formData, "email", 200).toLowerCase();
   if (!/^\S+@\S+\.\S+$/.test(email)) return { ok: false, error: "Please check your email address." };
-  const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(email);
-  // Same answer either way, so the form cannot be used to find out who has an account.
+  const [visitorOk, accountOk] = await Promise.all([
+    allow("reset", await clientKey()),
+    allow("reset", accountKey(email)),
+  ]);
+  if (visitorOk && accountOk) {
+    const supabase = await createClient();
+    await supabase.auth.resetPasswordForEmail(email);
+  }
+  // Same answer either way, so the form cannot be used to find out who has an
+  // account, nor to post somebody a hundred reset emails.
   return { ok: true, message: "If that email has an account, a reset link is on its way." };
 }
 

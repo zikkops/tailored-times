@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { getPricing, getTemplate } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { DEFAULT_PAYMENT_METHOD, isPayable } from "@/lib/payments";
+import { allow, clientKey, TOO_MANY_MESSAGE } from "@/lib/rate-limit";
 import { calculatePrice, DESIGNER_REQUIRED_FROM_PAGES, FORMATS, SIZES, type Format, type Size } from "@/lib/pricing";
 import { getCustomer } from "@/lib/account";
 import { notifyNewOrder } from "@/lib/notify";
@@ -14,36 +15,34 @@ export type ActionResult = { ok: true; reference?: string } | { ok: false; error
 
 const MAX_PHOTOS = 60; // templates can have dozens of numbered picture slots
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // everything in one order, together
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic"];
+
+// What the file actually starts with, rather than what the browser calls it:
+// a script can claim any type it likes, so each upload has to look like a
+// picture before it is stored.
+const MAGIC: [string, (b: Uint8Array) => boolean][] = [
+  ["jpg", (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff],
+  ["png", (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47],
+  ["webp", (b) => String.fromCharCode(...b.slice(0, 4)) === "RIFF" && String.fromCharCode(...b.slice(8, 12)) === "WEBP"],
+  ["heic", (b) => String.fromCharCode(...b.slice(4, 8)) === "ftyp"],
+  ["gif", (b) => String.fromCharCode(...b.slice(0, 3)) === "GIF"],
+];
+
+async function looksLikeAPhoto(file: File): Promise<boolean> {
+  const head = new Uint8Array(await file.slice(0, 16).arrayBuffer());
+  return MAGIC.some(([, test]) => test(head));
+}
 
 const str = (fd: FormData, key: string, max = 2000) => String(fd.get(key) ?? "").trim().slice(0, max);
 
 const serviceReady = () => isSupabaseConfigured && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 // ---------------------------------------------------------- spam guard
-// Simple per-visitor rate limit (bug list R90). In memory, so it resets when
-// the server restarts and counts per server instance: enough to stop a script
-// hammering the forms, not a replacement for a real spam service later.
-const RATE_LIMIT = { orders: { max: 5, windowMs: 10 * 60_000 }, messages: { max: 3, windowMs: 10 * 60_000 } };
-const hits = new Map<string, number[]>();
+// Per-visitor limit on how often the forms may be used (bug list R90). The
+// count is kept in the database so every server shares it: see lib/rate-limit.
 
-async function tooManyRequests(kind: keyof typeof RATE_LIMIT): Promise<boolean> {
-  const h = await headers();
-  const ip = (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || h.get("x-real-ip") || "unknown";
-  const key = `${kind}:${ip}`;
-  const { max, windowMs } = RATE_LIMIT[kind];
-  const now = Date.now();
-  const recent = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
-  recent.push(now);
-  hits.set(key, recent);
-  if (hits.size > 5000) hits.clear(); // keep the map from growing without bound
-  return recent.length > max;
-}
-
-const TOO_MANY: ActionResult = {
-  ok: false,
-  error: "That is a lot of requests in a short time. Please wait a few minutes, or contact us on +961 81 587 957.",
-};
+const TOO_MANY: ActionResult = { ok: false, error: TOO_MANY_MESSAGE };
 
 const NOT_READY: ActionResult = {
   ok: false,
@@ -54,7 +53,7 @@ const NOT_READY: ActionResult = {
 
 export async function createOrder(formData: FormData): Promise<ActionResult> {
   if (str(formData, "website")) return { ok: true, reference: "TT-000000" }; // honeypot: pretend success
-  if (await tooManyRequests("orders")) return TOO_MANY;
+  if (!(await allow("order", await clientKey()))) return TOO_MANY;
   if (!serviceReady()) return NOT_READY;
 
   const template = await getTemplate(str(formData, "template"));
@@ -128,10 +127,14 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
     for (const file of files) photos.push({ field: field.key, label: field.label, file });
   }
   if (photos.length > MAX_PHOTOS) return { ok: false, error: `Please upload at most ${MAX_PHOTOS} photos in total.` };
+  let totalBytes = 0;
   for (const { file } of photos) {
     if (file.size > MAX_PHOTO_BYTES) return { ok: false, error: `"${file.name}" is larger than 5 MB.` };
     if (!PHOTO_TYPES.includes(file.type)) return { ok: false, error: `"${file.name}" isn't a JPG, PNG, WEBP or HEIC photo.` };
+    if (!(await looksLikeAPhoto(file))) return { ok: false, error: `"${file.name}" isn't really a photo.` };
+    totalBytes += file.size;
   }
+  if (totalBytes > MAX_UPLOAD_BYTES) return { ok: false, error: "Those photos are too large altogether. Please send fewer, or smaller ones." };
 
   // An order placed while signed in belongs to that account straight away;
   // a guest order is claimed later, when they sign up with the same email.
@@ -218,7 +221,7 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
 
 export async function sendContactMessage(formData: FormData): Promise<ActionResult> {
   if (str(formData, "website")) return { ok: true }; // honeypot
-  if (await tooManyRequests("messages")) return TOO_MANY;
+  if (!(await allow("contact", await clientKey()))) return TOO_MANY;
   if (!serviceReady()) return NOT_READY;
 
   const msg = {

@@ -1,33 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useActionState } from "react";
+import { signInAdmin } from "../actions";
 
 const input = "w-full border border-line bg-white px-3 py-2";
 
+// The sign-in itself happens on the server (see signInAdmin), so attempts can
+// be counted: guessing a password here is slowed down after a few tries.
 export function LoginForm() {
-  const router = useRouter();
-  const [error, setError] = useState("");
-  const [pending, setPending] = useState(false);
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setPending(true);
-    setError("");
-    const fd = new FormData(e.currentTarget);
-    const { error } = await createClient().auth.signInWithPassword({
-      email: String(fd.get("email")),
-      password: String(fd.get("password")),
-    });
-    setPending(false);
-    if (error) return setError("Wrong email or password.");
-    router.replace("/admin");
-    router.refresh();
-  }
+  const [error, action, pending] = useActionState(signInAdmin, "");
 
   return (
-    <form onSubmit={onSubmit} className="mt-6 space-y-4">
+    <form action={action} className="mt-6 space-y-4">
       <div>
         <label htmlFor="email" className="block text-sm font-semibold">Email</label>
         <input id="email" name="email" type="email" required autoComplete="email" className={input} />

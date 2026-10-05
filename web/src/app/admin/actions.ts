@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { requireAdmin } from "@/lib/auth";
-import { ADMIN_DEMO, DEMO_COOKIE, DEMO_LOGIN } from "@/lib/env";
+import { ADMIN_DEMO, DEMO_COOKIE, DEMO_LOGIN, isSupabaseConfigured } from "@/lib/env";
+import { accountKey, allow, clientKey, TOO_MANY_SIGNIN_MESSAGE } from "@/lib/rate-limit";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import { DEFAULT_PRICING, type PricingConfig } from "@/lib/pricing";
 import { createClient } from "@/lib/supabase/server";
@@ -105,10 +106,39 @@ export async function savePricing(_prev: string, formData: FormData): Promise<st
   return "Prices saved.";
 }
 
+// Staff sign-in. It runs on the server rather than in the browser so that
+// attempts can be counted and slowed down, and so that an account which is not
+// in `admins` never keeps a session here.
+export async function signInAdmin(_prev: string, formData: FormData): Promise<string> {
+  if (ADMIN_DEMO) return "The back office is in demo mode.";
+  if (!isSupabaseConfigured) return "Supabase isn't configured yet.";
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase().slice(0, 200);
+  const password = String(formData.get("password") ?? "");
+
+  const [visitorOk, accountOk] = await Promise.all([
+    allow("adminSignin", await clientKey()),
+    allow("signinAccount", accountKey(email)),
+  ]);
+  if (!visitorOk || !accountOk) return TOO_MANY_SIGNIN_MESSAGE;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.user) return "Wrong email or password.";
+
+  const { data: admin } = await supabase.from("admins").select("user_id").eq("user_id", data.user.id).maybeSingle();
+  if (!admin) {
+    await supabase.auth.signOut();
+    return "That account cannot sign in here.";
+  }
+  redirect("/admin");
+}
+
 // Demo sign-in: checks the fixed user and password and drops a cookie the
 // proxy looks for. Only ever reachable while ADMIN_DEMO is on.
 export async function demoSignIn(_prev: string, formData: FormData): Promise<string> {
   if (!ADMIN_DEMO) return "Demo login is switched off.";
+  if (!(await allow("adminSignin", await clientKey()))) return TOO_MANY_SIGNIN_MESSAGE;
   const user = String(formData.get("user") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   if (user !== DEMO_LOGIN.user || password !== DEMO_LOGIN.password) return "Wrong user or password.";

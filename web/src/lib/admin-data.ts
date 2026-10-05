@@ -44,7 +44,9 @@ export async function listOrders({ status = "", q = "" }): Promise<{ orders: Adm
   let query = supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(200);
   if (status && (ORDER_STATUSES as readonly string[]).includes(status)) query = query.eq("status", status);
   if (q) {
-    const like = `%${q.replace(/[%_,()]/g, "")}%`;
+    // Only plain characters reach the filter: a comma, bracket, quote or
+    // backslash would otherwise be read as part of the query, not the search.
+    const like = `%${q.replace(/[^\p{L}\p{N} .@+-]/gu, "").slice(0, 80)}%`;
     query = query.or(`reference.ilike.${like},customer_name.ilike.${like},customer_phone.ilike.${like}`);
   }
   const { data, error } = await query;

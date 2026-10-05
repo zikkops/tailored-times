@@ -31,6 +31,50 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "55mb" },
   },
+  // Sent with every page. They do not stop a determined attacker on their own,
+  // but they close the easy doors: the site cannot be framed by a copy of
+  // itself, browsers may not guess at file types, forms can only post back
+  // here, and nothing outside this list may be loaded or connected to.
+  async headers() {
+    const csp = [
+      "default-src 'self'",
+      // Next needs inline scripts for hydration; 'unsafe-eval' is dev only.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: blob: https://*.supabase.co",
+      "connect-src 'self' https://*.supabase.co",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "upgrade-insecure-requests",
+    ].join("; ");
+
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: csp },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "X-DNS-Prefetch-Control", value: "off" },
+        ],
+      },
+      // The back office is never indexed, framed or cached.
+      {
+        source: "/admin/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/account/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ];
+  },
   // Old WordPress URLs keep working (and keep their Google ranking).
   async redirects() {
     return [

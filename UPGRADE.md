@@ -246,6 +246,62 @@ orders are changed by the team.
   Vercel, create the first admin user, and check Supabase's email settings
   (sign-up confirmation and password reset emails).
 
+## Locking it down (6 Oct 2026)
+
+Owner asked for the site to be safe from break-ins, password guessing and bot
+spam. What was already right: every database query goes through the Supabase
+client with values passed separately, so there is no string-built SQL to inject
+into; the public pages never write from the browser; row-level security denies
+everything by default; the photo bucket is private and served by links that
+expire; React escapes everything it prints, and nothing uses
+`dangerouslySetInnerHTML`.
+
+What was added:
+
+- **One shared counter for every form** (`migrations/0003_hardening.sql`,
+  `src/lib/rate-limit.ts`). The old count lived in memory, so a restart wiped it
+  and each server counted on its own. It is now a table, with the visitor's
+  address stored only as a hash. Limits: 5 orders and 3 messages per 10 minutes,
+  10 sign-ins per 10 minutes per visitor **and** 6 per 15 minutes per account,
+  5 sign-ups and 4 reset emails an hour, 8 staff sign-ins per 10 minutes.
+- **Sign-in attempts are counted per account as well as per visitor**, so a
+  password cannot be worked on from a hundred addresses at once.
+- **The staff login now runs on the server.** It used to sign in from the
+  browser, where nothing could count the attempts; it also signs the person
+  straight back out if they are not in `admins`.
+- **Passwords must be at least 10 characters** (was 8).
+- **Uploads are checked by their first bytes**, not by the type the browser
+  claims, and one order may carry 50 MB in total.
+- **Past orders are only claimed by a confirmed email address.** Without this,
+  turning email confirmation off would let anyone sign up as someone else and
+  read that person's order, address and photos.
+- **Demo mode is off unless asked for** (`NEXT_PUBLIC_ADMIN_DEMO=1`). It used to
+  be on by default, so losing one setting on a host would have replaced the real
+  login with one whose password is printed on the page.
+- **Security headers on every page** (`next.config.mjs`): a content policy that
+  allows only this site, Google Fonts and Supabase, no framing, no sniffing,
+  forms can only post back here, and HSTS. `/admin` and `/account` are told not
+  to be indexed.
+- The one place the site builds a filter from typed text (admin search) now
+  keeps letters, numbers and a few plain marks, and nothing else.
+
+Checked against the live database with the public key, as a stranger would:
+orders, answers, messages, profiles and admins all come back empty; inserting
+an order, a message or an admin row is refused; changing a price changes
+nothing; the photo bucket lists nothing; a quote-and-comma filter is rejected
+by the API rather than widening the query.
+
+**Left for the owner** (these are account settings, not code):
+
+- Supabase > Authentication > Rate Limits is at its defaults: 30 sign-in or
+  sign-up requests per 5 minutes per address. That is the limit on Supabase's
+  own login endpoint, which is reachable directly and cannot be guarded from
+  here. Lower it if you want.
+- Turn on **leaked password protection** (Authentication > Policies) so stolen
+  passwords cannot be reused here.
+- A bot test (Cloudflare Turnstile or similar) on the order and contact forms
+  is the next step up from counting requests; it needs keys from the owner.
+
 ## Deploying on Hostinger (6 Oct 2026)
 
 The site is also set up on **Hostinger** (hPanel > Websites > tailored-times.com),

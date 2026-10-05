@@ -28,4 +28,7 @@ cash on delivery.
 - Every admin server action re-checks that the user is in `admins`, even behind `proxy.ts`.
 - Order statuses: `ordered` → `created` → `printing` → `delivering` → `delivered` (+ `cancelled`).
 - Payment is cash on delivery only (`payment_method = 'cod'`).
+- Anything a stranger can submit (order, contact, sign-in, sign-up, reset) goes
+  through `allow()` in `src/lib/rate-limit.ts` first. Uploads are checked by
+  their first bytes, not the type the browser claims.
 - Not hosted yet. Never push or deploy without being asked.
