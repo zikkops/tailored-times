@@ -265,6 +265,14 @@ compiled before it is read. The old WordPress redirects live in that file rather
 than being imported from `src/`, and `src/lib/next-config.test.ts` fails if they
 drift from `TEMPLATES`.
 
+That machine is old in a second way: Next 16 builds with Turbopack by default,
+and Turbopack only runs on the native bindings it cannot load, so the build
+stopped again with "Turbopack is not supported on this platform". `npm run
+build` therefore passes `--webpack`, which Next documents for exactly this case;
+`npm run build:turbo` is still there for the faster build on a modern machine.
+The Hostinger panel has no field for a custom build command, so the choice has
+to live in package.json.
+
 ## Paying for an order (3 Oct 2026)
 
 Owner (3 Oct): check the payment process, make it work with and without an
