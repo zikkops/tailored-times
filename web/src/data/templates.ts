@@ -1,7 +1,7 @@
 // The 15 templates on the live site (21 Sep 2026), in gallery order.
 // Seeds the `templates` table (supabase/seed.sql) and is the fallback when
 // Supabase isn't configured. `legacySlug` is the old WordPress URL; it
-// 301-redirects to /templates/<slug> (see next.config.ts).
+// 301-redirects to /templates/<slug> (see next.config.mjs).
 
 export type TemplateSeed = {
   slug: string;

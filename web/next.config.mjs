@@ -1,9 +1,13 @@
-import type { NextConfig } from "next";
+// Plain JavaScript on purpose: a next.config.ts has to be compiled before it can
+// be read, and on build machines with an older glibc (Hostinger's, for one) Next
+// falls back to its WebAssembly compiler, whose compiled config imports a temp
+// file with no extension - which Node refuses to load. A .mjs config skips all
+// of that and is read as-is everywhere.
 
-// Old WordPress template URLs → new slugs. Kept inline (no local imports) because
-// hosts like Hostinger copy this file elsewhere and load it with plain Node, which
-// can't resolve "./src/...". src/lib/next-config.test.ts checks it matches TEMPLATES.
-export const LEGACY_TEMPLATE_REDIRECTS: Record<string, string> = {
+// Old WordPress template URLs -> new slugs. Kept here rather than imported from
+// src/, so nothing outside this file has to resolve while the config loads.
+// src/lib/next-config.test.ts fails if these drift from TEMPLATES.
+export const LEGACY_TEMPLATE_REDIRECTS = {
   "birthday-template": "birthday",
   "birthday-template-2": "birthday-2",
   "anniversary-template": "anniversary",
@@ -21,7 +25,8 @@ export const LEGACY_TEMPLATE_REDIRECTS: Record<string, string> = {
   "promotion-template": "promotion",
 };
 
-const nextConfig: NextConfig = {
+/** @type {import("next").NextConfig} */
+const nextConfig = {
   // Orders carry up to 10 photos of 5 MB each (checked again in createOrder).
   experimental: {
     serverActions: { bodySizeLimit: "55mb" },

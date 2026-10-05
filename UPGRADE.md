@@ -246,6 +246,25 @@ orders are changed by the team.
   Vercel, create the first admin user, and check Supabase's email settings
   (sign-up confirmation and password reset emails).
 
+## Deploying on Hostinger (6 Oct 2026)
+
+The site is also set up on **Hostinger** (hPanel > Websites > tailored-times.com),
+connected to the GitHub repo, branch `main`, root directory `web`, Node 22, with
+auto-deployment on, so every push builds there as well as on Vercel.
+
+Builds kept failing with `Cannot find module .../6ac42a92b5edc.next.config`. The
+chain: the Hostinger build machine has a glibc older than 2.29, so Next cannot
+load its native compiler and falls back to the WebAssembly one; in that fallback
+a **TypeScript** `next.config.ts` is compiled to a temporary file that the
+generated `next.config.compiled.js` then imports **without a file extension**,
+which Node's ESM loader refuses. The stray temp file in the repo root is Next's
+own doing, not something that was committed.
+
+Fix: the config is plain ESM, `web/next.config.mjs`, so nothing has to be
+compiled before it is read. The old WordPress redirects live in that file rather
+than being imported from `src/`, and `src/lib/next-config.test.ts` fails if they
+drift from `TEMPLATES`.
+
 ## Paying for an order (3 Oct 2026)
 
 Owner (3 Oct): check the payment process, make it work with and without an
@@ -437,9 +456,9 @@ price runs on the server.
   rate limiting.
   *Done 21 Sep: `/contact` + `sendContactMessage` with honeypot. Rate limiting not added yet.*
 - [x] **P3.7 Redirects** from every old WordPress URL (`/birthday-template/`
-  etc.) to the new routes, with 301s in `next.config.ts`, so existing links and
+  etc.) to the new routes, with 301s in `next.config.mjs`, so existing links and
   Google results keep working.
-  *Done 21 Sep in `web/next.config.ts`, driven by `legacySlug` in the templates data.*
+  *Done 21 Sep in `web/next.config.mjs`, driven by `legacySlug` in the templates data.*
 - [x] **P3.8 Notifications**: email the team (and the customer) on a new order.
   Use a Supabase trigger or Resend from the server action.
   *Done 21 Sep (team only): `src/lib/notify.ts` emails contact@tailored-times.com through Resend after each order (sent with `after()`, so it never slows or fails the order). Off until `RESEND_API_KEY` is set. Resend's test sender only delivers to the Resend account's own address until tailored-times.com is verified there; then set `NOTIFY_EMAIL_FROM`. Customer confirmation emails not added.* *Owner, 21 Sep: Resend parked for now. The code stays in place and does nothing without a key; admins see new orders in `/admin`.*
