@@ -4,6 +4,7 @@
 import type { NextConfig } from "next";
 
 export declare const LEGACY_TEMPLATE_REDIRECTS: Record<string, string>;
+export declare const CONTENT_SECURITY_POLICY: string;
 
 declare const nextConfig: NextConfig;
 export default nextConfig;

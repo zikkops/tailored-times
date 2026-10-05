@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTENT_SECURITY_POLICY } from "../../next.config.mjs";
 import { Comfortaa, Lobster, Old_Standard_TT, Roboto } from "next/font/google";
 import "./globals.css";
 
@@ -25,6 +26,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${blenda.variable} ${bauhaus.variable} ${roboto.variable} ${news.variable} h-full antialiased`}>
+      <head>
+        {/* Repeated here because Hostinger's CDN replaces the header version. */}
+        <meta httpEquiv="Content-Security-Policy" content={CONTENT_SECURITY_POLICY} />
+      </head>
       <body className="min-h-full flex flex-col font-roboto">{children}</body>
     </html>
   );

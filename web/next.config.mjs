@@ -25,6 +25,25 @@ export const LEGACY_TEMPLATE_REDIRECTS = {
   "promotion-template": "promotion",
 };
 
+// What a page is allowed to load and talk to: this site, Google's fonts and
+// Supabase, nothing else. Sent as a header, and repeated as a <meta> tag in the
+// page itself (src/app/layout.tsx) because Hostinger's CDN replaces the header
+// with one of its own. "frame-ancestors" only works as a header, so framing is
+// also blocked by X-Frame-Options below.
+export const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  // Next needs inline scripts for hydration; 'unsafe-eval' is dev only.
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob: https://*.supabase.co",
+  "connect-src 'self' https://*.supabase.co",
+  "form-action 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   // Orders carry up to 10 photos of 5 MB each (checked again in createOrder).
@@ -36,26 +55,11 @@ const nextConfig = {
   // itself, browsers may not guess at file types, forms can only post back
   // here, and nothing outside this list may be loaded or connected to.
   async headers() {
-    const csp = [
-      "default-src 'self'",
-      // Next needs inline scripts for hydration; 'unsafe-eval' is dev only.
-      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com data:",
-      "img-src 'self' data: blob: https://*.supabase.co",
-      "connect-src 'self' https://*.supabase.co",
-      "frame-ancestors 'none'",
-      "form-action 'self'",
-      "base-uri 'self'",
-      "object-src 'none'",
-      "upgrade-insecure-requests",
-    ].join("; ");
-
     return [
       {
         source: "/:path*",
         headers: [
-          { key: "Content-Security-Policy", value: csp },
+          { key: "Content-Security-Policy", value: CONTENT_SECURITY_POLICY + "; frame-ancestors 'none'" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
