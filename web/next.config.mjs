@@ -27,9 +27,13 @@ export const LEGACY_TEMPLATE_REDIRECTS = {
 
 // What a page is allowed to load and talk to: this site, Google's fonts and
 // Supabase, nothing else. Sent as a header, and repeated as a <meta> tag in the
-// page itself (src/app/layout.tsx) because Hostinger's CDN replaces the header
-// with one of its own. "frame-ancestors" only works as a header, so framing is
-// also blocked by X-Frame-Options below.
+// page itself because Hostinger's CDN replaces the header with one of its own.
+// "frame-ancestors" only works as a header, so framing is also blocked by
+// X-Frame-Options below.
+//
+// src/lib/csp.ts holds the copy the page uses - the app cannot read this file
+// on Hostinger, which runs the app with a config of its own making. Keep the
+// two identical; src/lib/csp.test.ts fails if they drift.
 export const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   // Next needs inline scripts for hydration; 'unsafe-eval' is dev only.

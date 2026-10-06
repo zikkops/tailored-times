@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CONTENT_SECURITY_POLICY } from "../../next.config.mjs";
+import { CONTENT_SECURITY_POLICY } from "@/lib/csp";
 import { Comfortaa, Lobster, Old_Standard_TT, Roboto } from "next/font/google";
 import "./globals.css";
 
