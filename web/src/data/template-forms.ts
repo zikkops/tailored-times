@@ -332,6 +332,11 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "Please note that we may not always be able to recreate the exact same icons you provide. However, your references will help us understand the style, look, and idea you have in mind, and we'll do our best to find or create a similar alternative."
     },
     {
+      "key": "n14_text",
+      "label": "14. Text",
+      "type": "textarea"
+    },
+    {
       "key": "n15_icon_text",
       "label": "15. Icon (Text)",
       "type": "textarea",
@@ -453,13 +458,15 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     },
     {
       "key": "n32_game_names",
-      "label": "32. Game Names",
-      "type": "textarea"
+      "label": "32. Girl names",
+      "type": "textarea",
+      "help": "One name per line."
     },
     {
-      "key": "n32_game_names_2",
-      "label": "32. Game Names",
-      "type": "textarea"
+      "key": "n33_boy_names",
+      "label": "33. Boy names",
+      "type": "textarea",
+      "help": "One name per line."
     }
   ],
   "birthday": [
@@ -2630,16 +2637,6 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n1_issue",
       "label": "1. Issue",
-      "type": "text"
-    },
-    {
-      "key": "n1_date",
-      "label": "1. Date",
-      "type": "date"
-    },
-    {
-      "key": "n1_title",
-      "label": "1. Title",
       "type": "text"
     },
     {

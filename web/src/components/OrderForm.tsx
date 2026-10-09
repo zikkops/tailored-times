@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { createOrder } from "@/app/actions";
 import type { FormField } from "@/lib/data";
+import { useNumberedPreview } from "./NumberedPreview";
 import { DEFAULT_PAYMENT_METHOD, PAYMENT_METHODS } from "@/lib/payments";
 import {
   calculatePrice,
@@ -21,7 +22,8 @@ import {
 // server recalculates it (createOrder).
 
 type Props = {
-  template: { slug: string; name: string; formSchema: FormField[] };
+  // fieldPages[i] is the numbered page (0-based) that formSchema[i] is printed on.
+  template: { slug: string; name: string; formSchema: FormField[]; fieldPages?: number[] };
   pricing: PricingConfig;
   // The signed-in customer's saved details, used to fill in the last step.
   you?: { name: string; phone: string; email: string; address: string } | null;
@@ -176,12 +178,45 @@ export function OrderForm({ template, pricing, you }: Props) {
     });
   }
 
+  // Step 2 shows the numbered pages beside the form, starting on page 1.
+  const preview = useNumberedPreview();
+  const fieldPages = template.fieldPages ?? [];
+  const story = useRef<HTMLDivElement>(null);
+  function goTo(n: number) {
+    setStep(n);
+    preview.setPage(n === 1 && fieldPages.length ? 0 : null);
+  }
+  const pageOf = (el: Element | null) => {
+    const p = el?.closest<HTMLElement>("[data-page]")?.dataset.page;
+    return p === undefined ? null : Number(p);
+  };
+
+  // While scrolling through step 2, turn to the page of the field crossing the
+  // middle of the window, once each time it changes, so the arrows still work.
+  const { setPage } = preview;
+  useEffect(() => {
+    if (step !== 1 || !fieldPages.length) return;
+    let last: number | null = 0;
+    const onScroll = () => {
+      const line = window.innerHeight * 0.45;
+      let current: Element | null = null;
+      for (const el of story.current?.children ?? []) {
+        if (el.getBoundingClientRect().top > line) break;
+        current = el;
+      }
+      const p = current ? pageOf(current) : 0;
+      if (p !== null && p !== last) setPage((last = p));
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [step, fieldPages.length, setPage]);
+
   function next(e: React.MouseEvent<HTMLButtonElement>) {
     // Validate only the fields on the visible step before moving on.
     const section = e.currentTarget.closest("fieldset");
     const fields = section?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input:not([type=hidden]), textarea") ?? [];
     for (const f of fields) if (!f.reportValidity()) return;
-    setStep((s) => s + 1);
+    goTo(step + 1);
   }
 
   return (
@@ -317,10 +352,18 @@ export function OrderForm({ template, pricing, you }: Props) {
           team will ask you about it.
         </p>
         {/* Two columns on wider screens; long boxes and multi-photo slots take the full width. */}
-        <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
-        {template.formSchema.map((f) => (
+        <div
+          ref={story}
+          className="grid gap-x-6 gap-y-4 sm:grid-cols-2"
+          onFocus={(e) => {
+            const p = pageOf(e.target);
+            if (p !== null) preview.setPage(p);
+          }}
+        >
+        {template.formSchema.map((f, n) => (
           <div
             key={f.key}
+            data-page={fieldPages[n]}
             className={`border-t border-ink/10 pt-4 ${f.type === "textarea" || f.multiple ? "sm:col-span-2" : ""}`}
           >
             <Label htmlFor={`f_${f.key}`}>
@@ -346,7 +389,7 @@ export function OrderForm({ template, pricing, you }: Props) {
         ))}
         </div>
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => setStep(0)} className="btn-light">
+          <button type="button" onClick={() => goTo(0)} className="btn-light">
             ← Back
           </button>
           <button type="button" onClick={next} className="btn-dark flex-1 font-medium">
@@ -453,7 +496,7 @@ export function OrderForm({ template, pricing, you }: Props) {
         )}
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => setStep(1)} className="btn-light">
+          <button type="button" onClick={() => goTo(1)} className="btn-light">
             ← Back
           </button>
           <button type="submit" disabled={pending} className="btn-dark flex-1 font-medium">

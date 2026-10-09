@@ -120,9 +120,18 @@ const HELP_BY_TYPE: Record<string, string> = {
   color: "A colour name or hex code, e.g. navy or #0D0C1D.",
 };
 
-// Wording the owner asked for on specific fields (bug list R17): keyed by
-// "<slug>|<label>" and applied after the sheet is read.
-const OVERRIDES: Record<string, { label?: string; help?: string }> = {
+// Changes the owner asked for on specific fields (bug list R17), applied after
+// the sheet is read: keyed by "<slug>|<key>" or "<slug>|<label>". `remove`
+// drops the field; `after` adds new fields right after it.
+const OVERRIDES: Record<string, Partial<Field> & { remove?: true; after?: Field[] }> = {
+  // Only the issue is printed at number 1 on the retirement paper.
+  "retirement|n1_date": { remove: true },
+  "retirement|n1_title": { remove: true },
+  // The sheet skips 14 (the text under icon 13) and lists 32 twice; the paper
+  // has 32 for girl names and 33 for boy names.
+  "baby-shower|n13_icon_photo": { after: [{ key: "n14_text", label: "14. Text", type: "textarea" }] },
+  "baby-shower|n32_game_names": { label: "32. Girl names", help: "One name per line." },
+  "baby-shower|n32_game_names_2": { key: "n33_boy_names", label: "33. Boy names", help: "One name per line." },
   "birthday-2|30. Additional Photos for the Family Tree": {
     label: "30. Photos to add to the family tree",
     help: "Name each photo after the person it shows, e.g. \"image 1 - Aya Akl\", and number them clearly so we add them in the right place.",
@@ -186,9 +195,13 @@ for (const sheet of sheets) {
     missing.push(sheet.name);
     continue;
   }
-  forms[slug] = buildFields(rowsOf(sheet.file)).map((f) => {
-    const override = OVERRIDES[`${slug}|${f.label}`];
-    return override ? { ...f, ...override } : f;
+  forms[slug] = buildFields(rowsOf(sheet.file)).flatMap((f) => {
+    const override = OVERRIDES[`${slug}|${f.key}`] ?? OVERRIDES[`${slug}|${f.label}`];
+    if (!override) return [f];
+    if (override.remove) return [];
+    const { after = [], ...changes } = override;
+    delete changes.remove;
+    return [{ ...f, ...changes }, ...after];
   });
 }
 
