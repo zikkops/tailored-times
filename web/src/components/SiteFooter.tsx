@@ -11,6 +11,12 @@ const SECTIONS = [
   { href: "/contact", label: "Contact us" },
 ];
 
+// The owner's two documents, in the small print where people look for them.
+const LEGAL = [
+  { href: "/terms", label: "Terms & Conditions" },
+  { href: "/privacy", label: "Privacy Policy" },
+];
+
 const heading = "font-roboto text-[11px] font-semibold uppercase tracking-[0.25em] text-ink/70";
 const link = "inline-block py-2 font-bauhaus text-[15px] text-ink transition-opacity hover:opacity-60";
 
@@ -79,8 +85,15 @@ export function SiteFooter() {
         </div>
 
         {/* Small print */}
-        <div className="flex flex-col items-center justify-between gap-2 border-t border-ink/20 pt-6 font-roboto text-xs text-ink/60 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-1 border-t border-ink/20 pt-6 font-roboto text-xs text-ink/60 sm:flex-row sm:gap-4">
           <p>© {new Date().getFullYear()} Tailored Times. All rights reserved.</p>
+          <nav aria-label="Legal" className="flex items-center gap-5">
+            {LEGAL.map((l) => (
+              <Link key={l.href} href={l.href} className="py-2 underline-offset-4 hover:underline">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
           <p>Cash on delivery · Free delivery</p>
         </div>
       </div>

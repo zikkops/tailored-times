@@ -206,16 +206,13 @@ export default async function HomePage() {
                 <Option title="No frame">Keep your design as an authentic newspaper</Option>
               </div>
             </div>
-            {/* The framed paper is portrait, so it keeps its own shape (bug list R7). */}
-            <div data-step-media data-from="right" className="relative mx-auto aspect-[914/1280] w-full max-w-[340px] overflow-hidden">
-              <Image
-                src="/home/step4-frame.jpg"
-                alt="A framed Tailored Times anniversary newspaper"
-                fill
-                sizes="(min-width: 768px) 340px, 70vw"
-                className="object-contain"
-              />
-            </div>
+            {/* The photo shows the same paper both ways, framed and loose, so
+                it makes the choice above it without any extra caption. */}
+            <StepImage
+              from="right"
+              src="/home/step4-frame.jpg"
+              alt="The same Tailored Times anniversary newspaper twice on a wall: one in a thin black frame, one unframed"
+            />
           </Step>
 
           {/* Step 5: photo left, text right */}

@@ -302,6 +302,26 @@ by the API rather than widening the query.
 - A bot test (Cloudflare Turnstile or similar) on the order and contact forms
   is the next step up from counting requests; it needs keys from the owner.
 
+## Terms, privacy, and the framing photo (12 Oct 2026)
+
+The owner sent two Word files, which are now pages of their own: **/terms** and
+**/privacy**, linked from the small print at the bottom of every page.
+
+- The documents live in the repo at `web/data/terms-and-conditions.docx` and
+  `web/data/privacy-policy.docx`, beside the templates workbook.
+  `npm run gen:legal` reads them and writes `src/data/legal.ts` (headings,
+  paragraphs and bullet lists), the same arrangement as the step-2 form data.
+  When the owner sends a new version, drop it in and re-run that one command;
+  nothing is retyped and nothing is reworded.
+- `src/components/LegalPage.tsx` renders either document in the site's style:
+  the masthead header, the script title, the date line, then one readable
+  column of numbered sections. Terms has 20 sections, privacy 13.
+- Step 4 on the home page ("Choose frame") now uses the owner's photo of the
+  same paper twice, framed and unframed, which makes the choice without a
+  caption. It is landscape, so the block uses the standard step image instead
+  of the portrait shape the old picture needed (the bug-list R7 note went with
+  the old photo).
+
 ## Deploying on Hostinger (6 Oct 2026)
 
 The site is also set up on **Hostinger** (hPanel > Websites > tailored-times.com),
