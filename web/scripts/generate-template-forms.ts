@@ -127,10 +127,22 @@ const OVERRIDES: Record<string, Partial<Field> & { remove?: true; after?: Field[
   // Only the issue is printed at number 1 on the retirement paper.
   "retirement|n1_date": { remove: true },
   "retirement|n1_title": { remove: true },
-  // The first icon takes two numbers on the paper: 13 for the icon written as
-  // text, 14 for an uploaded one (owner, 14 Oct 2026). The sheet also lists 32
+  // Every icon on the gender-reveal page takes two numbers: the odd one for the
+  // icon written as text, the next for an uploaded one, so the numbers run
+  // 13, 14, 15, 16 … The caption boxes between them go (owner, 14 Oct 2026;
+  // only on this page, the wedding papers keep theirs). The sheet also lists 32
   // twice; the paper has 32 for girl names and 33 for boy names.
   "baby-shower|n13_icon_photo": { key: "n14_icon_photo", label: "14. Icon (Photo)" },
+  "baby-shower|n15_icon_photo": { key: "n16_icon_photo", label: "16. Icon (Photo)" },
+  "baby-shower|n16_text": { remove: true },
+  "baby-shower|n17_icon_photo": { key: "n18_icon_photo", label: "18. Icon (Photo)" },
+  "baby-shower|n18_text": { remove: true },
+  "baby-shower|n19_icon_photo": { key: "n20_icon_photo", label: "20. Icon (Photo)" },
+  "baby-shower|n20_text": { remove: true },
+  "baby-shower|n21_icon_photo": { key: "n22_icon_photo", label: "22. Icon (Photo)" },
+  "baby-shower|n22_text": { remove: true },
+  "baby-shower|n23_icon_photo": { key: "n24_icon_photo", label: "24. Icon (Photo)" },
+  "baby-shower|n24_text": { remove: true },
   "baby-shower|n32_game_names": { label: "32. Girl names", help: "One name per line." },
   "baby-shower|n32_game_names_2": { key: "n33_boy_names", label: "33. Boy names", help: "One name per line." },
   "birthday-2|30. Additional Photos for the Family Tree": {

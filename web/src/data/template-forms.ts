@@ -338,15 +338,10 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "You are free to add a text to explain the icon you want us to add here, or you can choose to add a photo instead."
     },
     {
-      "key": "n15_icon_photo",
-      "label": "15. Icon (Photo)",
+      "key": "n16_icon_photo",
+      "label": "16. Icon (Photo)",
       "type": "file",
       "help": "Please note that we may not always be able to recreate the exact same icons you provide. However, your references will help us understand the style, look, and idea you have in mind, and we'll do our best to find or create a similar alternative."
-    },
-    {
-      "key": "n16_text",
-      "label": "16. Text",
-      "type": "textarea"
     },
     {
       "key": "n17_icon_text",
@@ -355,15 +350,10 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "You are free to add a text to explain the icon you want us to add here, or you can choose to add a photo instead."
     },
     {
-      "key": "n17_icon_photo",
-      "label": "17. Icon (Photo)",
+      "key": "n18_icon_photo",
+      "label": "18. Icon (Photo)",
       "type": "file",
       "help": "Please note that we may not always be able to recreate the exact same icons you provide. However, your references will help us understand the style, look, and idea you have in mind, and we'll do our best to find or create a similar alternative."
-    },
-    {
-      "key": "n18_text",
-      "label": "18. Text",
-      "type": "textarea"
     },
     {
       "key": "n19_icon_text",
@@ -372,15 +362,10 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "You are free to add a text to explain the icon you want us to add here, or you can choose to add a photo instead."
     },
     {
-      "key": "n19_icon_photo",
-      "label": "19. Icon (Photo)",
+      "key": "n20_icon_photo",
+      "label": "20. Icon (Photo)",
       "type": "file",
       "help": "Please note that we may not always be able to recreate the exact same icons you provide. However, your references will help us understand the style, look, and idea you have in mind, and we'll do our best to find or create a similar alternative."
-    },
-    {
-      "key": "n20_text",
-      "label": "20. Text",
-      "type": "textarea"
     },
     {
       "key": "n21_icon_text",
@@ -389,15 +374,10 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "You are free to add a text to explain the icon you want us to add here, or you can choose to add a photo instead."
     },
     {
-      "key": "n21_icon_photo",
-      "label": "21. Icon (Photo)",
+      "key": "n22_icon_photo",
+      "label": "22. Icon (Photo)",
       "type": "file",
       "help": "Please note that we may not always be able to recreate the exact same icons you provide. However, your references will help us understand the style, look, and idea you have in mind, and we'll do our best to find or create a similar alternative."
-    },
-    {
-      "key": "n22_text",
-      "label": "22. Text",
-      "type": "textarea"
     },
     {
       "key": "n23_icon_text",
@@ -406,15 +386,10 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "You are free to add a text to explain the icon you want us to add here, or you can choose to add a photo instead."
     },
     {
-      "key": "n23_icon_photo",
-      "label": "23. Icon (Photo)",
+      "key": "n24_icon_photo",
+      "label": "24. Icon (Photo)",
       "type": "file",
       "help": "Please note that we may not always be able to recreate the exact same icons you provide. However, your references will help us understand the style, look, and idea you have in mind, and we'll do our best to find or create a similar alternative."
-    },
-    {
-      "key": "n24_text",
-      "label": "24. Text",
-      "type": "textarea"
     },
     {
       "key": "n25_photo_5",
