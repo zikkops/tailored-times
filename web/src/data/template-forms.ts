@@ -326,15 +326,10 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
       "help": "You are free to add a text to explain the icon you want us to add here, or you can choose to add a photo instead."
     },
     {
-      "key": "n13_icon_photo",
-      "label": "13. Icon (Photo)",
+      "key": "n14_icon_photo",
+      "label": "14. Icon (Photo)",
       "type": "file",
       "help": "Please note that we may not always be able to recreate the exact same icons you provide. However, your references will help us understand the style, look, and idea you have in mind, and we'll do our best to find or create a similar alternative."
-    },
-    {
-      "key": "n14_text",
-      "label": "14. Text",
-      "type": "textarea"
     },
     {
       "key": "n15_icon_text",

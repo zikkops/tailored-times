@@ -127,9 +127,10 @@ const OVERRIDES: Record<string, Partial<Field> & { remove?: true; after?: Field[
   // Only the issue is printed at number 1 on the retirement paper.
   "retirement|n1_date": { remove: true },
   "retirement|n1_title": { remove: true },
-  // The sheet skips 14 (the text under icon 13) and lists 32 twice; the paper
-  // has 32 for girl names and 33 for boy names.
-  "baby-shower|n13_icon_photo": { after: [{ key: "n14_text", label: "14. Text", type: "textarea" }] },
+  // The first icon takes two numbers on the paper: 13 for the icon written as
+  // text, 14 for an uploaded one (owner, 14 Oct 2026). The sheet also lists 32
+  // twice; the paper has 32 for girl names and 33 for boy names.
+  "baby-shower|n13_icon_photo": { key: "n14_icon_photo", label: "14. Icon (Photo)" },
   "baby-shower|n32_game_names": { label: "32. Girl names", help: "One name per line." },
   "baby-shower|n32_game_names_2": { key: "n33_boy_names", label: "33. Boy names", help: "One name per line." },
   "birthday-2|30. Additional Photos for the Family Tree": {
