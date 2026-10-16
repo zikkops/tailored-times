@@ -12,6 +12,22 @@ import { paymentLabel } from "@/lib/payments";
 
 const when = (iso: string) => new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
+// Cash orders are collected by the courier; a Whish order says where it got
+// to, because one that is not paid yet should not go out for delivery.
+function paymentNote(order: { payment_method: string; payment_state?: string | null; whish_checked_at?: string | null }) {
+  if (order.payment_method === "cod") return "";
+  const state = order.payment_state ?? "pending";
+  const words: Record<string, string> = {
+    paid: "paid",
+    pending: "not paid yet",
+    failed: "attempt failed, link still open",
+    refunded: "refunded",
+    on_delivery: "on delivery",
+  };
+  const asked = order.whish_checked_at ? `, asked ${new Date(order.whish_checked_at).toLocaleString("en-GB")}` : "";
+  return ` — ${words[state] ?? state}${asked}`;
+}
+
 function Card({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`rounded-md border border-ink/10 bg-white p-5 ${className}`}>
@@ -39,7 +55,7 @@ export default async function AdminOrderPage(props: PageProps<"/admin/orders/[id
         ] as [string, string][])
       : []),
     ["Designer", order.designer ? "Yes" : "No"],
-    ["Payment", paymentLabel(order.payment_method)],
+    ["Payment", paymentLabel(order.payment_method) + paymentNote(order)],
   ];
 
   return (
@@ -76,7 +92,10 @@ export default async function AdminOrderPage(props: PageProps<"/admin/orders/[id
                   </a>
                 </p>
               )}
-              <p className="mt-3 whitespace-pre-line text-sm text-ink/70">{order.delivery_address}</p>
+              {order.delivery_area && <p className="mt-3 text-sm font-medium">{order.delivery_area}</p>}
+              <p className={`${order.delivery_area ? "mt-1" : "mt-3"} whitespace-pre-line text-sm text-ink/70`}>
+                {order.delivery_address}
+              </p>
               {order.notes && (
                 <p className="mt-3 border-l-2 border-amber-400 bg-amber-50 p-2 text-sm">{order.notes}</p>
               )}
@@ -163,6 +182,31 @@ export default async function AdminOrderPage(props: PageProps<"/admin/orders/[id
             </button>
             {ADMIN_DEMO && <p className="mt-2 text-center text-xs text-ink/50">Demo mode: not saved.</p>}
           </form>
+
+          {order.format !== "Digital copy" && (
+            <Card title="Wakilni delivery">
+              {order.wakilni_order_id ? (
+                <div className="space-y-1 text-sm">
+                  <p>
+                    Sent{order.wakilni_sent_at && ` on ${new Date(order.wakilni_sent_at).toLocaleString("en-GB")}`}.
+                  </p>
+                  {order.wakilni_tracking_id && <p className="text-ink/70">Tracking {order.wakilni_tracking_id}</p>}
+                  {order.wakilni_tracking_url && (
+                    <a href={order.wakilni_tracking_url} target="_blank" rel="noreferrer" className="underline underline-offset-4">
+                      Track the delivery
+                    </a>
+                  )}
+                </div>
+              ) : order.wakilni_error ? (
+                <div className="space-y-2 text-sm">
+                  <p className="border-l-2 border-red-400 bg-red-50 p-2 break-words">{order.wakilni_error}</p>
+                  <p className="text-ink/60">Save the status as delivering again to retry.</p>
+                </div>
+              ) : (
+                <p className="text-sm text-ink/60">Sent to Wakilni when the status is saved as delivering.</p>
+              )}
+            </Card>
+          )}
 
           <Card title="History">
             {events.length ? (

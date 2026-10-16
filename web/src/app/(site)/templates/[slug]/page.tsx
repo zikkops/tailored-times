@@ -6,6 +6,7 @@ import { PreviewSlider } from "@/components/PreviewSlider";
 import { numberedPagesFor } from "@/data/numbered-pages";
 import { getCustomer } from "@/lib/account";
 import { getPricing, getTemplate } from "@/lib/data";
+import { getWakilniAreas } from "@/lib/wakilni";
 
 export async function generateMetadata(props: PageProps<"/templates/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
@@ -17,7 +18,7 @@ export async function generateMetadata(props: PageProps<"/templates/[slug]">): P
 // blurb and the calculator/order card on the right.
 export default async function TemplatePage(props: PageProps<"/templates/[slug]">) {
   const { slug } = await props.params;
-  const [template, pricing, customer] = await Promise.all([getTemplate(slug), getPricing(), getCustomer()]);
+  const [template, pricing, customer, areas] = await Promise.all([getTemplate(slug), getPricing(), getCustomer(), getWakilniAreas()]);
   if (!template) notFound();
   const numbered = numberedPagesFor(template.slug, template.formSchema, template.previewImages);
 
@@ -47,6 +48,7 @@ export default async function TemplatePage(props: PageProps<"/templates/[slug]">
         <OrderForm
           template={{ slug: template.slug, name: template.name, formSchema: template.formSchema, fieldPages: numbered.fieldPages }}
           pricing={pricing}
+          areas={areas}
           you={you}
         />
       </div>

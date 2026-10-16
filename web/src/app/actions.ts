@@ -4,14 +4,26 @@ import { headers } from "next/headers";
 import { after } from "next/server";
 import { getPricing, getTemplate } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
-import { DEFAULT_PAYMENT_METHOD, isPayable } from "@/lib/payments";
+import { DEFAULT_PAYMENT_METHOD, isPayable, isPaidOnline } from "@/lib/payments";
+import { createWhishPayment, isWhishConfigured } from "@/lib/whish";
 import { allow, clientKey, TOO_MANY_MESSAGE } from "@/lib/rate-limit";
 import { calculatePrice, DESIGNER_REQUIRED_FROM_PAGES, FORMATS, SIZES, type Format, type Size } from "@/lib/pricing";
 import { getCustomer } from "@/lib/account";
 import { notifyNewOrder } from "@/lib/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getWakilniAreas } from "@/lib/wakilni";
 
-export type ActionResult = { ok: true; reference?: string } | { ok: false; error: string };
+export type ActionResult =
+  /** payUrl: the customer still has to pay, and is sent there next. */
+  | { ok: true; reference?: string; payUrl?: string }
+  | { ok: false; error: string };
+
+/**
+ * Where Whish sends people back to, and calls us. It has to be a public
+ * address: Whish refuses localhost, so this is the live site unless
+ * NEXT_PUBLIC_SITE_URL says otherwise.
+ */
+const publicSiteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL || "https://tailored-times.com").replace(/\/$/, "");
 
 const MAX_PHOTOS = 60; // templates can have dozens of numbered picture slots
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -110,6 +122,19 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
   }
   if (customer.email && !/^\S+@\S+\.\S+$/.test(customer.email)) return { ok: false, error: "Please check your email address." };
 
+  // The delivery area, one of Wakilni's own names so the order can go straight
+  // to them. When their list can't be loaded, any area typed in is kept.
+  let area = str(formData, "delivery_area", 200);
+  if (format !== "Digital copy") {
+    if (!area) return { ok: false, error: "Please choose your area." };
+    const areas = await getWakilniAreas();
+    if (areas.length) {
+      const match = areas.find((a) => a.toLowerCase() === area.toLowerCase());
+      if (!match) return { ok: false, error: "Please pick your area from the list." };
+      area = match;
+    }
+  }
+
   // Step 2 answers, driven by the template's form schema.
   const answers: { field_key: string; label: string; value: string }[] = [];
   for (const field of template.formSchema.filter((f) => f.type !== "file")) {
@@ -153,7 +178,9 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
       customer_phone: customer.phone,
       customer_email: customer.email || null,
       delivery_address: customer.address,
+      delivery_area: area || null,
       payment_method: paymentMethod,
+      payment_state: isPaidOnline(paymentMethod) ? "pending" : "on_delivery",
       notes: str(formData, "notes", 5000) || null,
     })
     .select("id, reference")
@@ -181,6 +208,41 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
   }
 
   await db.from("order_events").insert({ order_id: order.id, to_status: "ordered", note: "Order placed on the website" });
+
+  // Paying online: ask Whish for a link and send the customer to it. The order
+  // is already saved, so a payment that cannot be started is written on the
+  // order for the team rather than thrown back at the customer, who would
+  // otherwise order a second time.
+  let payUrl: string | undefined;
+  if (isPaidOnline(paymentMethod)) {
+    const base = publicSiteUrl();
+    const ref = encodeURIComponent(order.reference);
+    try {
+      if (!isWhishConfigured) throw new Error("Whish keys are missing");
+      payUrl = await createWhishPayment({
+        externalId: order.reference,
+        amount: price,
+        invoice: `${template.name} newspaper, order ${order.reference}`,
+        successRedirectUrl: `${base}/order/success?ref=${ref}`,
+        failureRedirectUrl: `${base}/order/success?ref=${ref}&payment=failed`,
+        successCallbackUrl: `${base}/api/whish/callback?ref=${ref}`,
+        failureCallbackUrl: `${base}/api/whish/callback?ref=${ref}`,
+      });
+      await db.from("orders").update({ whish_collect_url: payUrl, whish_error: null }).eq("id", order.id);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error("whish payment could not be started", message);
+      await db
+        .from("orders")
+        .update({ payment_state: "failed", whish_error: message.slice(0, 500) })
+        .eq("id", order.id);
+      await db.from("order_events").insert({
+        order_id: order.id,
+        to_status: "ordered",
+        note: `Whish payment could not be started: ${message}`.slice(0, 2000),
+      });
+    }
+  }
 
   // Email the team after the response is sent: the customer never waits on it,
   // and a failed email can never fail the order.
@@ -214,7 +276,7 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
     ),
   );
 
-  return { ok: true, reference: order.reference };
+  return { ok: true, reference: order.reference, payUrl };
 }
 
 // ---------------------------------------------------------------- contact

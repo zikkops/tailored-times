@@ -25,6 +25,8 @@ type Props = {
   // fieldPages[i] is the numbered page (0-based) that formSchema[i] is printed on.
   template: { slug: string; name: string; formSchema: FormField[]; fieldPages?: number[] };
   pricing: PricingConfig;
+  // Wakilni's delivery areas for the area picker (empty: type any area).
+  areas?: string[];
   // The signed-in customer's saved details, used to fill in the last step.
   you?: { name: string; phone: string; email: string; address: string } | null;
 };
@@ -137,7 +139,7 @@ function Options<T extends string | number>({
   );
 }
 
-export function OrderForm({ template, pricing, you }: Props) {
+export function OrderForm({ template, pricing, you, areas = [] }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
@@ -173,8 +175,15 @@ export function OrderForm({ template, pricing, you }: Props) {
     setError("");
     startTransition(async () => {
       const result = await createOrder(formData);
-      if (result.ok) router.push(`/order/success?ref=${encodeURIComponent(result.reference ?? "")}`);
-      else setError(result.error);
+      if (!result.ok) return setError(result.error);
+      // Paying online: the order is saved, now finish the payment at Whish,
+      // which sends them back to the confirmation afterwards. Leaving the site
+      // is a full page change, not a router push.
+      if (result.payUrl) {
+        window.location.href = result.payUrl;
+        return;
+      }
+      router.push(`/order/success?ref=${encodeURIComponent(result.reference ?? "")}`);
     });
   }
 
@@ -418,6 +427,37 @@ export function OrderForm({ template, pricing, you }: Props) {
           <div className="sm:col-span-2">
             <Label htmlFor="customer_email">Email</Label>
             <input id="customer_email" name="customer_email" type="email" defaultValue={you?.email ?? ""} autoComplete="email" className={input} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="delivery_area">Area{isDigital ? "" : " *"}</Label>
+            {/* Wakilni's own area names, so the delivery goes straight to them.
+                Type to search; only a name from the list is accepted. Without
+                the list (Wakilni not reachable) any area can be typed. */}
+            <input
+              id="delivery_area"
+              name="delivery_area"
+              list={areas.length ? "wakilni-areas" : undefined}
+              required={!isDigital}
+              autoComplete="off"
+              placeholder={areas.length ? "Start typing, e.g. Hamra" : "e.g. Hamra"}
+              onChange={(e) => {
+                const el = e.currentTarget;
+                const match = areas.find((a) => a.toLowerCase() === el.value.trim().toLowerCase());
+                el.setCustomValidity(!areas.length || !el.value || match ? "" : "Please pick your area from the list.");
+              }}
+              onBlur={(e) => {
+                const match = areas.find((a) => a.toLowerCase() === e.currentTarget.value.trim().toLowerCase());
+                if (match) e.currentTarget.value = match;
+              }}
+              className={input}
+            />
+            {areas.length > 0 && (
+              <datalist id="wakilni-areas">
+                {areas.map((a) => (
+                  <option key={a} value={a} />
+                ))}
+              </datalist>
+            )}
           </div>
           <div className="sm:col-span-2">
             <Label htmlFor="delivery_address">Delivery address *</Label>

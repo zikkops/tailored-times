@@ -27,7 +27,9 @@ cash on delivery.
   actions using the service-role client (`src/lib/supabase/admin.ts`), after validating input.
 - Every admin server action re-checks that the user is in `admins`, even behind `proxy.ts`.
 - Order statuses: `ordered` → `created` → `printing` → `delivering` → `delivered` (+ `cancelled`).
-- Payment is cash on delivery only (`payment_method = 'cod'`).
+- Two ways to pay: cash on delivery (`cod`) and Whish (`whish`, src/lib/whish.ts).
+  An order is only ever marked paid by asking Whish; their callback is unsigned,
+  so it is a nudge to go and check, never the answer itself.
 - Anything a stranger can submit (order, contact, sign-in, sign-up, reset) goes
   through `allow()` in `src/lib/rate-limit.ts` first. Uploads are checked by
   their first bytes, not the type the browser claims.

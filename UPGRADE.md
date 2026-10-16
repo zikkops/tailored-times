@@ -322,6 +322,47 @@ The owner sent two Word files, which are now pages of their own: **/terms** and
   of the portrait shape the old picture needed (the bug-list R7 note went with
   the old photo).
 
+## Paying with Whish (16 Oct 2026)
+
+Whish Pay is the second way to pay, beside cash on delivery. Whish sent test
+keys and their API docs (whish-partners.pages.dev); the sandbox was called
+end to end before any of this was wired in, and it answered as documented.
+
+How it runs:
+
+- The customer picks Whish on step 3. The order is saved first, then we ask
+  Whish for a payment link and send them to it; they come back to the
+  confirmation page.
+- **Nothing is believed except Whish's own answer.** Their callback is a plain
+  GET with no signature, from a public address, so it only tells us which
+  order to go and ask about. `settleWhishOrder` asks their status endpoint and
+  writes that. The confirmation page asks too, so a customer whose callback
+  never arrived still gets settled the moment they look.
+- `status: false` with code 500 means *not settled yet*, not failed. Reading it
+  as a failure would write off a payment someone is still making, so it maps
+  to pending. A failed attempt does not close anything either: their link
+  stays payable.
+- `orders.payment_state` (migration 0005): `on_delivery` for cash, then
+  `pending` / `paid` / `failed` / `refunded`. The admin order page shows it,
+  because an unpaid Whish order must not go out for delivery - Wakilni is told
+  to collect nothing for anything that is not cash on delivery.
+- The order reference (TT-000123) is the `externalId`. Whish replays a settled
+  answer for a reference it has seen, so asking twice is free and safe.
+
+**Switched off until the keys are set.** Whish only appears on the order form
+where `NEXT_PUBLIC_WHISH_ENABLED=1`, and the server checks the real keys
+before sending anyone there. The keys are in `web/.env.local` (git-ignored)
+for local work; Hostinger and Vercel each need their own copy before the live
+site can take a payment - see `.env.example`.
+
+**Still sandbox.** `WHISH_API_URL` points at
+`partner.api.sbx.whish.money`. The live keys and
+`https://api.whish.money/itel-service/api` replace it when Whish says go.
+
+**Local testing has a limit:** Whish refuses callback and redirect URLs that
+are not public, so a payment started from localhost sends people back to the
+live site. `NEXT_PUBLIC_SITE_URL` decides that address.
+
 ## Deploying on Hostinger (6 Oct 2026)
 
 The site is also set up on **Hostinger** (hPanel > Websites > tailored-times.com),

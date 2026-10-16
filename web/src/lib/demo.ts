@@ -20,6 +20,10 @@ export type DemoOrder = {
   currency: string;
   status: OrderStatus;
   payment_method: string;
+  payment_state?: string | null;
+  whish_collect_url?: string | null;
+  whish_checked_at?: string | null;
+  whish_error?: string | null;
   customer_name: string;
   customer_phone: string;
   customer_email: string | null;
@@ -27,6 +31,13 @@ export type DemoOrder = {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  // Delivery through Wakilni (migration 0004); absent on sample orders.
+  delivery_area?: string | null;
+  wakilni_order_id?: number | null;
+  wakilni_tracking_id?: string | null;
+  wakilni_tracking_url?: string | null;
+  wakilni_sent_at?: string | null;
+  wakilni_error?: string | null;
 };
 
 const daysAgo = (days: number, hour = 11) => {

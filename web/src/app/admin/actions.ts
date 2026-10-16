@@ -9,6 +9,7 @@ import { accountKey, allow, clientKey, TOO_MANY_SIGNIN_MESSAGE } from "@/lib/rat
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import { DEFAULT_PRICING, type PricingConfig } from "@/lib/pricing";
 import { createClient } from "@/lib/supabase/server";
+import { sendToWakilni, WakilniError } from "@/lib/wakilni";
 
 
 // Every action re-checks the admin role; proxy.ts only checks for a session.
@@ -23,7 +24,7 @@ export async function updateOrderStatus(formData: FormData) {
   if (!ORDER_STATUSES.includes(status)) return;
 
   const supabase = await createClient();
-  const { data: current } = await supabase.from("orders").select("status").eq("id", orderId).single();
+  const { data: current } = await supabase.from("orders").select("*").eq("id", orderId).single();
   if (!current) return;
 
   if (current.status !== status) {
@@ -37,6 +38,35 @@ export async function updateOrderStatus(formData: FormData) {
       note: note || null,
       created_by: admin.id,
     });
+  }
+
+  // 'Delivering' hands the order to Wakilni, once. If that failed, saving
+  // 'delivering' again tries again. Digital copies have nothing to deliver.
+  if (status === "delivering" && !current.wakilni_order_id && current.format !== "Digital copy") {
+    try {
+      const sent = await sendToWakilni(current);
+      await supabase
+        .from("orders")
+        .update({
+          wakilni_order_id: sent.orderId,
+          wakilni_tracking_id: sent.trackingId,
+          wakilni_tracking_url: sent.trackingUrl,
+          wakilni_sent_at: new Date().toISOString(),
+          wakilni_error: null,
+        })
+        .eq("id", orderId);
+      await supabase.from("order_events").insert({
+        order_id: orderId,
+        from_status: status,
+        to_status: status,
+        note: `Sent to Wakilni${sent.trackingId ? ` (tracking ${sent.trackingId})` : ""}`,
+        created_by: admin.id,
+      });
+    } catch (e) {
+      const message = e instanceof WakilniError ? e.message : "Couldn't reach Wakilni.";
+      console.error("sendToWakilni failed", e);
+      await supabase.from("orders").update({ wakilni_error: message }).eq("id", orderId);
+    }
   }
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin");
