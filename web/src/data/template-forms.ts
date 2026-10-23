@@ -443,22 +443,26 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n1_edition",
       "label": "1. Edition",
-      "type": "text"
+      "type": "text",
+      "maxLength": 30
     },
     {
       "key": "n2_location",
       "label": "2. Location",
-      "type": "text"
+      "type": "text",
+      "maxLength": 30
     },
     {
       "key": "n3_title",
       "label": "3. Title",
-      "type": "text"
+      "type": "text",
+      "maxLength": 30
     },
     {
       "key": "n4_person",
       "label": "4. Person",
-      "type": "text"
+      "type": "text",
+      "maxLength": 15
     },
     {
       "key": "n5_color",
@@ -474,12 +478,14 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n7_title",
       "label": "7. Title",
-      "type": "text"
+      "type": "text",
+      "maxLength": 20
     },
     {
       "key": "n8_text",
       "label": "8. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 485
     },
     {
       "key": "n9_photo",
@@ -495,7 +501,8 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n10_year",
       "label": "10. Year",
-      "type": "text"
+      "type": "text",
+      "maxLength": 4
     },
     {
       "key": "n10_color",
@@ -506,17 +513,20 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n11_text",
       "label": "11. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 10
     },
     {
       "key": "n12_song",
       "label": "12. Song",
-      "type": "text"
+      "type": "text",
+      "maxLength": 60
     },
     {
       "key": "n13_text",
       "label": "13. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 265
     },
     {
       "key": "n14_photo",
@@ -531,7 +541,8 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n16_year",
       "label": "16. Year",
-      "type": "text"
+      "type": "text",
+      "maxLength": 4
     },
     {
       "key": "n16_color",
@@ -542,17 +553,20 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n17_tite",
       "label": "17. Title",
-      "type": "text"
+      "type": "text",
+      "maxLength": 15
     },
     {
       "key": "n18_text",
       "label": "18. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 90
     },
     {
       "key": "n19_text",
       "label": "19. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 35
     },
     {
       "key": "n20_icon",
@@ -575,12 +589,14 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n21_text",
       "label": "21. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 30
     },
     {
       "key": "n22_text",
       "label": "22. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 30
     },
     {
       "key": "n22_year",
@@ -595,7 +611,8 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n24_text",
       "label": "24. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 30
     },
     {
       "key": "n24_year",
@@ -610,7 +627,8 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n26_text",
       "label": "26. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 30
     },
     {
       "key": "n26_year",
@@ -625,7 +643,8 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n28_text",
       "label": "28. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 30
     },
     {
       "key": "n28_year",
@@ -640,7 +659,8 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n30_text",
       "label": "30. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 30
     },
     {
       "key": "n30_year",
@@ -655,17 +675,20 @@ export const TEMPLATE_FORMS: Record<string, FormField[]> = {
     {
       "key": "n32_text",
       "label": "32. Text",
-      "type": "textarea"
+      "type": "textarea",
+      "maxLength": 30
     },
     {
       "key": "n33_across",
       "label": "33. Across",
-      "type": "text"
+      "type": "text",
+      "maxLength": 600
     },
     {
       "key": "n34_down",
       "label": "34. Down",
-      "type": "text"
+      "type": "text",
+      "maxLength": 600
     }
   ],
   "birthday-2": [

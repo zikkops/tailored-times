@@ -6,6 +6,8 @@ import { getOrderDetail } from "@/lib/admin-data";
 import { ADMIN_DEMO } from "@/lib/env";
 import { ORDER_STATUSES } from "@/lib/orders";
 import { paymentLabel } from "@/lib/payments";
+import { TEMPLATES } from "@/data/templates";
+import { hasPrintLayout } from "@/print/layouts";
 
 // One order: what was ordered, who it is for, what the customer wrote and
 // uploaded, plus the status control and the history.
@@ -42,6 +44,8 @@ export default async function AdminOrderPage(props: PageProps<"/admin/orders/[id
   const detail = await getOrderDetail(id);
   if (!detail) notFound();
   const { order, answers, photos, events } = detail;
+  // Templates with a print layout (src/print/layouts.ts) can make their print file.
+  const printable = TEMPLATES.some((t) => t.name === order.template_name && hasPrintLayout(t.slug));
 
   const paper: [string, string][] = [
     ["Template", order.template_name],
@@ -157,6 +161,22 @@ export default async function AdminOrderPage(props: PageProps<"/admin/orders/[id
         </div>
 
         <aside className="space-y-5">
+          {printable && !ADMIN_DEMO && (
+            <Card title="Print file">
+              <a
+                href={`/admin/orders/${order.id}/print`}
+                target="_blank"
+                rel="noreferrer"
+                className="block w-full rounded-sm bg-ink px-4 py-2.5 text-center text-sm font-medium text-paper"
+              >
+                Open print PDF
+              </a>
+              <p className="mt-2 text-xs text-ink/60">
+                Built from what the customer filled in. Anything missing or too long is marked in red: check it before
+                sending it to the printing house.
+              </p>
+            </Card>
+          )}
           <form action={updateOrderStatus} className="rounded-md border border-ink/10 bg-white p-5">
             <input type="hidden" name="order_id" value={order.id} />
             <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/50">Update status</h2>

@@ -23,6 +23,12 @@ export type FormField = {
   required?: boolean;
   help?: string;
   multiple?: boolean; // file fields that take several photos
+  /**
+   * How many characters fit this spot on the printed paper, from the owner's
+   * typesetting sheet. The box stops there and the server checks it again, so
+   * nothing arrives too long to lay out.
+   */
+  maxLength?: number;
 };
 
 // Step 2 of the order. Every template has its own numbered fields in

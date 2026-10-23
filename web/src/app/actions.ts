@@ -140,6 +140,15 @@ export async function createOrder(formData: FormData): Promise<ActionResult> {
   for (const field of template.formSchema.filter((f) => f.type !== "file")) {
     const value = str(formData, `answer_${field.key}`, 20000);
     if (field.required && !value) return { ok: false, error: `Please fill in "${field.label}".` };
+    // The box stops at the limit in the browser; this is the same check for
+    // anything that did not come from the box. Too long is refused rather than
+    // cut, so nobody loses words without being told.
+    if (field.maxLength && value.length > field.maxLength) {
+      return {
+        ok: false,
+        error: `"${field.label}" has room for ${field.maxLength} characters on the paper; please shorten it.`,
+      };
+    }
     answers.push({ field_key: field.key, label: field.label, value });
   }
 

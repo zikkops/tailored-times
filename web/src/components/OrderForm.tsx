@@ -152,6 +152,10 @@ export function OrderForm({ template, pricing, you, areas = [] }: Props) {
   const [frames, setFrames] = useState<"No" | "Yes">("No");
   const [designer, setDesigner] = useState<"No" | "Yes">("No");
   const [payment, setPayment] = useState(DEFAULT_PAYMENT_METHOD);
+  // How much of each limited box is used, so people can see the room they have
+  // before they run out of it rather than after.
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const countFor = (key: string, length: number) => setCounts((c) => (c[key] === length ? c : { ...c, [key]: length }));
 
   const isDigital = format === "Digital copy";
   const setCopiesSafe = (n: number) => setCopies(Math.max(1, Math.min(500, Math.floor(n) || 1)));
@@ -381,7 +385,15 @@ export function OrderForm({ template, pricing, you, areas = [] }: Props) {
             </Label>
             {f.help && <p className="-mt-1 mb-2 font-roboto text-xs text-muted">{f.help}</p>}
             {f.type === "textarea" ? (
-              <GrowingTextarea id={`f_${f.key}`} name={`answer_${f.key}`} required={f.required} rows={2} className={input} />
+              <GrowingTextarea
+                id={`f_${f.key}`}
+                name={`answer_${f.key}`}
+                required={f.required}
+                rows={2}
+                maxLength={f.maxLength}
+                onInput={(e) => countFor(f.key, e.currentTarget.value.length)}
+                className={input}
+              />
             ) : f.type === "file" ? (
               <input
                 id={`f_${f.key}`}
@@ -392,8 +404,27 @@ export function OrderForm({ template, pricing, you, areas = [] }: Props) {
                 className="block w-full font-roboto text-sm text-ink file:mr-3 file:rounded-sm file:border-0 file:bg-ink-2 file:px-4 file:py-2 file:text-sm file:text-white"
               />
             ) : (
-              <input id={`f_${f.key}`} name={`answer_${f.key}`} type={f.type} required={f.required} className={input} />
+              <input
+                id={`f_${f.key}`}
+                name={`answer_${f.key}`}
+                type={f.type}
+                required={f.required}
+                maxLength={f.maxLength}
+                onInput={(e) => countFor(f.key, e.currentTarget.value.length)}
+                className={input}
+              />
             )}
+            {/* How much room this spot has on the printed paper. */}
+            {f.maxLength && f.type !== "file" && f.type !== "date" ? (
+              <p
+                className={`mt-1 text-right font-roboto text-[11px] ${
+                  (counts[f.key] ?? 0) >= f.maxLength ? "text-ink" : "text-muted"
+                }`}
+              >
+                {counts[f.key] ?? 0}/{f.maxLength}
+                {(counts[f.key] ?? 0) >= f.maxLength && " — that's all that fits here"}
+              </p>
+            ) : null}
           </div>
         ))}
         </div>

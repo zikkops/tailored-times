@@ -322,6 +322,28 @@ The owner sent two Word files, which are now pages of their own: **/terms** and
   of the portrait shape the old picture needed (the bug-list R7 note went with
   the old photo).
 
+## Print files for the printing house (22 Oct 2026, proof of concept)
+
+Owner asked whether the site can fill the template with the customer's answers
+and make the PDF for the printing house. Built for **Birthday 1, cover page**:
+
+- [x] `src/print/layouts.ts`: where each numbered field sits on a page (boxes in
+  the background image's pixels), plus "tint" slots that recolour a shape in the
+  customer's colour (field 5, the brush stroke).
+- [x] `src/print/render.ts`: covers the sample text in the paper colour, writes
+  the answers (shrinks text to fit, cuts and warns past that), crops photos to
+  their frames at 300 dpi, sized for Tabloid (24×33 cm) or Broadsheet (35.7×50 cm).
+  Anything empty, too long, unreadable (HEIC) or not a colour is marked in red.
+- [x] Admin order page: "Open print PDF" (`/admin/orders/<id>/print`), admins only.
+- [ ] From the designer: each page exported at 300 dpi **without** the variable
+  text and photos, and the real fonts. Today's backgrounds are the website
+  previews (about 170 dpi on Tabloid, 115 on Broadsheet) and the fonts are
+  free look-alikes (DM Serif Display, Cormorant SC, Permanent Marker, Delius).
+- [ ] From the printing house: PDF type, colour mode (CMYK?), bleed, crop marks.
+  The file is RGB with no bleed today.
+- [ ] Pages 2–4 of Birthday 1, then the other 14 templates (Wedding 2 needs Arabic).
+- [ ] Decide: download and check (today), or send to the printer automatically.
+
 ## Paying with Whish (16 Oct 2026)
 
 Whish Pay is the second way to pay, beside cash on delivery. Whish sent test
